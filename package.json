@@ -172,7 +172,7 @@
     "ts-node": "10.9.1",
     "tsconfig-paths": "3.14.1",
     "urql": "3.0.3",
-    "yup": "0.32.11",
+    "yup": "1.4.0",
     "zustand": "3.7.2"
   },
   "devDependencies": {

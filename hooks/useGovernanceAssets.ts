@@ -140,6 +140,10 @@ export default function useGovernanceAssets() {
   //
   // Packages are visible by default
   const packages: Packages = {
+    [PackageEnum.Adrena]: {
+      name: 'Adrena',
+      image: '/img/adrena.svg',
+    },
     [PackageEnum.Common]: {
       name: 'Common',
     },
@@ -213,6 +217,18 @@ export default function useGovernanceAssets() {
   //
   // If isVisible is not set, it is equal to canUseAnyInstruction
   const instructionsMap: InstructionsMap = {
+    /*
+       █████  ██████  ██████  ███████ ███    ██  █████  
+      ██   ██ ██   ██ ██   ██ ██      ████   ██ ██   ██ 
+      ███████ ██   ██ ██████  █████   ██ ██  ██ ███████ 
+      ██   ██ ██   ██ ██   ██ ██      ██  ██ ██ ██   ██ 
+      ██   ██ ██████  ██   ██ ███████ ██   ████ ██   ██
+    */
+    [Instructions.AdrenaSetPoolAllowSwap]: {
+      name: 'Set Pool Allow Swap',
+      packageId: PackageEnum.Adrena,
+    },
+
     /*
         ██████  ██████  ███    ███ ███    ███  ██████  ███    ██
        ██      ██    ██ ████  ████ ████  ████ ██    ██ ████   ██

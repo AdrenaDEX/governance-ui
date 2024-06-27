@@ -12,6 +12,7 @@ import * as PaymentStreaming from '@mean-dao/payment-streaming'
 
 // Alphabetical order
 export enum PackageEnum {
+  Adrena,
   Common,
   Distribution,
   Dual,
@@ -291,6 +292,7 @@ export interface JoinDAOForm {
 }
 
 export enum Instructions {
+  AdrenaSetPoolAllowSwap,
   Base64,
   Burn,
   ChangeMakeDonation,
