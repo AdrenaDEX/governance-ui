@@ -58,7 +58,19 @@ import SwitchboardFundOracle from './components/instructions/Switchboard/FundOra
 import WithdrawFromOracle from './components/instructions/Switchboard/WithdrawFromOracle'
 import StakeValidator from './components/instructions/Validators/StakeValidator'
 import SanctumSplDepositStake from './components/instructions/Validators/SanctumSplDepositStake'
-import SetPoolAllowSwap from './components/instructions/Adrena/SetPoolAllowSwap'
+
+import AdrenaAddVest from './components/instructions/Adrena/AddVest'
+import AdrenaMintLmTokensFromBucket from './components/instructions/Adrena/MintLmTokensFromBucket'
+import AdrenaSetCustodyAllowSwap from './components/instructions/Adrena/SetCustodyAllowSwap'
+import AdrenaSetCustodyAllowTrade from './components/instructions/Adrena/SetCustodyAllowTrade'
+import AdrenaSetCustodyConfig from './components/instructions/Adrena/SetCustodyConfig'
+import AdrenaSetCustodyMaxCumulativeShortSizeUsd from './components/instructions/Adrena/SetCustodyMaxCumulativeShortSizeUsd'
+import AdrenaSetPoolAllowSwap from './components/instructions/Adrena/SetPoolAllowSwap'
+import AdrenaSetPoolAllowTrade from './components/instructions/Adrena/SetPoolAllowTrade'
+import AdrenaSetPoolAumSoftCapUsd from './components/instructions/Adrena/SetPoolAumSoftCapUsd'
+import AdrenaSetPoolLiquidityState from './components/instructions/Adrena/SetPoolLiquidityState'
+import AdrenaSetStakingLmEmissionPotentiometers from './components/instructions/Adrena/SetStakingLmEmissionPotentiometers'
+
 import DeactivateValidatorStake from './components/instructions/Validators/DeactivateStake'
 import WithdrawValidatorStake from './components/instructions/Validators/WithdrawStake'
 import DelegateStake from './components/instructions/Validators/DelegateStake'
@@ -464,7 +476,17 @@ const New = () => {
       | null
   } = useMemo(
     () => ({
-      [Instructions.AdrenaSetPoolAllowSwap]: SetPoolAllowSwap,
+      [Instructions.AdrenaAddVest]: AdrenaAddVest,
+      [Instructions.AdrenaMintLmTokensFromBucket]: AdrenaMintLmTokensFromBucket,
+      [Instructions.AdrenaSetCustodyAllowSwap]: AdrenaSetCustodyAllowSwap,
+      [Instructions.AdrenaSetCustodyAllowTrade]: AdrenaSetCustodyAllowTrade,
+      [Instructions.AdrenaSetCustodyConfig]: AdrenaSetCustodyConfig,
+      [Instructions.AdrenaSetCustodyMaxCumulativeShortSizeUsd]: AdrenaSetCustodyMaxCumulativeShortSizeUsd,
+      [Instructions.AdrenaSetPoolAllowSwap]: AdrenaSetPoolAllowSwap,
+      [Instructions.AdrenaSetPoolAllowTrade]: AdrenaSetPoolAllowTrade,
+      [Instructions.AdrenaSetPoolAumSoftCapUsd]: AdrenaSetPoolAumSoftCapUsd,
+      [Instructions.AdrenaSetPoolLiquidityState]: AdrenaSetPoolLiquidityState,
+      [Instructions.AdrenaSetStakingLmEmissionPotentiometers]: AdrenaSetStakingLmEmissionPotentiometers,
       [Instructions.Burn]: BurnTokens,
       [Instructions.Transfer]: SplTokenTransfer,
       [Instructions.ProgramUpgrade]: ProgramUpgrade,
