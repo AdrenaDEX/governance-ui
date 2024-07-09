@@ -296,7 +296,6 @@ export enum Instructions {
   AdrenaMintLmTokensFromBucket,
   AdrenaSetCustodyAllowSwap,
   AdrenaSetCustodyAllowTrade,
-  AdrenaSetCustodyConfig,
   AdrenaSetCustodyMaxCumulativeShortSizeUsd,
   AdrenaSetPoolAllowSwap,
   AdrenaSetPoolAllowTrade,

@@ -10,17 +10,29 @@ import InstructionForm, { InstructionInput } from '../FormCreator'
 import { InstructionInputType } from '../inputInstructionType'
 import { NewProposalContext } from '../../../new'
 import { AssetAccount } from '@utils/uiTypes/assets'
-import useAdrenaProgram from '@hooks/useAdrenaProgram'
-import * as AdrenaPdaUtils from '@tools/sdk/adrena/utils'
 import { BN } from '@coral-xyz/anchor'
-import { SYSVAR_RENT_PUBKEY, SystemProgram } from '@solana/web3.js'
+import { PublicKey, SYSVAR_RENT_PUBKEY, SystemProgram } from '@solana/web3.js'
 import { TOKEN_PROGRAM_ID } from '@solana/spl-token'
 import { DEFAULT_GOVERNANCE_PROGRAM_ID } from '@components/instructions/tools'
 import useWalletOnePointOh from '@hooks/useWalletOnePointOh'
+import { getMintNaturalAmountFromDecimalAsBN } from '@tools/sdk/units'
+import AdrenaClient, { OriginBucket } from '@tools/sdk/adrena/Adrena'
+import useAdrenaClient from '@hooks/useAdrenaClient'
+
+export const ORIGIN_BUCKET_VALUES = [
+  { name: 'Core Contributor', value: OriginBucket.CoreContributor },
+  { name: 'Dao Treasury', value: OriginBucket.DaoTreasury },
+  { name: 'PoL', value: OriginBucket.PoL },
+  { name: 'Ecosystem', value: OriginBucket.Ecosystem },
+]
 
 export interface AddVestForm {
   governedAccount: AssetAccount | null
   owner: string
+  amount: number
+  originBucket: number
+  unlockStartTimestamp: number
+  unlockEndTimestamp: number
 }
 
 export default function AddVest({
@@ -30,18 +42,27 @@ export default function AddVest({
   index: number
   governance: ProgramAccount<Governance> | null
 }) {
-  const adrenaProgram = useAdrenaProgram()
   const wallet = useWalletOnePointOh()
   const { assetAccounts } = useGovernanceAssets()
   const shouldBeGoverned = !!(index !== 0 && governance)
 
   const [form, setForm] = useState<AddVestForm>({
     governedAccount: null,
-    allow: false,
+    owner: '',
+    amount: 0,
+    originBucket: ORIGIN_BUCKET_VALUES[3].value, // Ecosystem as default
+    unlockStartTimestamp: 0,
+    unlockEndTimestamp: 0,
   })
+
   const [formErrors, setFormErrors] = useState({})
 
   const { handleSetInstructions } = useContext(NewProposalContext)
+
+  // TODO: load the program owned by the selected governance: form.governedAccount?.governance
+  const adrenaClient = useAdrenaClient(
+    new PublicKey('2ZHEtEKT7S1dSPodH2Sdu6cErDyFWad6Yc35cbbqtAaV')
+  )
 
   const validateInstruction = async (): Promise<boolean> => {
     const { isValid, validationErrors } = await isFormValid(schema, form)
@@ -55,7 +76,7 @@ export default function AddVest({
     const isValid = await validateInstruction()
     const governance = form.governedAccount?.governance
 
-    if (!isValid || !governance || !adrenaProgram || !wallet?.publicKey) {
+    if (!isValid || !governance || !adrenaClient || !wallet?.publicKey) {
       return {
         serializedInstruction: '',
         isValid,
@@ -64,27 +85,37 @@ export default function AddVest({
       }
     }
 
-    const instruction = await adrenaProgram.methods
+    const owner = new PublicKey(form.owner)
+    const cortex = await adrenaClient.getCortex()
+
+    const instruction = await adrenaClient.program.methods
       .addVest({
-        amount: new BN(0),
-        originBucket: 0,
-        unlockStartTimestamp: new BN(0),
-        unlockEndTimestamp: new BN(0),
+        amount: getMintNaturalAmountFromDecimalAsBN(form.amount, 9),
+        originBucket: form.originBucket,
+        unlockStartTimestamp: new BN(form.unlockStartTimestamp),
+        unlockEndTimestamp: new BN(form.unlockEndTimestamp),
       })
       .accountsStrict({
         admin: governance.nativeTreasuryAddress,
-        cortex: AdrenaPdaUtils.getCortexPda(),
-        owner: '',
+        cortex: adrenaClient.cortexPda,
+        owner,
         payer: wallet.publicKey,
-        transferAuthority: '',
-        vestRegistry: '',
-        vest: '',
-        lmTokenMint: '',
-        governanceTokenMint: '',
-        governanceRealm: '',
-        governanceRealmConfig: '',
-        governanceGoverningTokenHolding: '',
-        governanceGoverningTokenOwnerRecord: '',
+        transferAuthority: adrenaClient.transferAuthorityPda,
+        vestRegistry: adrenaClient.vestRegistryPda,
+        vest: adrenaClient.getUserVestPda(owner),
+        lmTokenMint: adrenaClient.lmTokenMint,
+        governanceTokenMint: adrenaClient.governanceTokenMint,
+        governanceRealm: cortex.governanceRealm,
+        governanceRealmConfig: AdrenaClient.getGovernanceRealmConfigPda(
+          cortex.governanceRealm
+        ),
+        governanceGoverningTokenHolding: adrenaClient.getGovernanceGoverningTokenHoldingPda(
+          cortex.governanceRealm
+        ),
+        governanceGoverningTokenOwnerRecord: adrenaClient.getGovernanceGoverningTokenOwnerRecordPda(
+          owner,
+          cortex.governanceRealm
+        ),
         governanceProgram: DEFAULT_GOVERNANCE_PROGRAM_ID,
         systemProgram: SystemProgram.programId,
         tokenProgram: TOKEN_PROGRAM_ID,
@@ -113,7 +144,15 @@ export default function AddVest({
       .object()
       .nullable()
       .required('Program governed account is required'),
-    allow: yup.boolean().required('Allow is required'),
+    owner: yup.string().required('Owner is required'),
+    originBucket: yup.number().required('Origin bucket is required'),
+    amount: yup.number().required('Token amount is required'),
+    unlockStartTimestamp: yup
+      .number()
+      .required('Unlock start timestamp is required'),
+    unlockEndTimestamp: yup
+      .number()
+      .required('Unlock end timestamp is required'),
   })
 
   const inputs: InstructionInput[] = [
@@ -127,10 +166,39 @@ export default function AddVest({
       options: assetAccounts,
     },
     {
-      label: 'Allow Swap',
-      initialValue: form.allow,
-      type: InstructionInputType.SWITCH,
-      name: 'allow',
+      label: 'Owner',
+      initialValue: form.owner,
+      type: InstructionInputType.INPUT,
+      inputType: 'text',
+      name: 'owner',
+    },
+    {
+      label: 'Origin Bucket',
+      initialValue: form.originBucket,
+      type: InstructionInputType.SELECT,
+      name: 'originBucket',
+      options: ORIGIN_BUCKET_VALUES,
+    },
+    {
+      label: 'Token Amount',
+      initialValue: form.amount,
+      type: InstructionInputType.INPUT,
+      inputType: 'number',
+      name: 'amount',
+    },
+    {
+      label: 'Unlock Start Timestamp',
+      initialValue: form.unlockStartTimestamp,
+      type: InstructionInputType.INPUT,
+      inputType: 'number',
+      name: 'unlockStartTimestamp',
+    },
+    {
+      label: 'Unlock End Timestamp',
+      initialValue: form.unlockEndTimestamp,
+      type: InstructionInputType.INPUT,
+      inputType: 'number',
+      name: 'unlockEndTimestamp',
     },
   ]
 

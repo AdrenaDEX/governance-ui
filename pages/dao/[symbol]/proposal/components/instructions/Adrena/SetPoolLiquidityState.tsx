@@ -10,13 +10,22 @@ import InstructionForm, { InstructionInput } from '../FormCreator'
 import { InstructionInputType } from '../inputInstructionType'
 import { NewProposalContext } from '../../../new'
 import { AssetAccount } from '@utils/uiTypes/assets'
-import useAdrenaProgram from '@hooks/useAdrenaProgram'
-import * as AdrenaPdaUtils from '@tools/sdk/adrena/utils'
+import { LiquidityState, PoolWithPubkey } from '@tools/sdk/adrena/Adrena'
+import useAdrenaClient from '@hooks/useAdrenaClient'
+import { PublicKey } from '@solana/web3.js'
+import useAdrenaPools from '@hooks/useAdrenaPools'
 
-export interface SetPoolLiquidityStateForm {
+export interface SetPoolAumSoftCapUsdForm {
   governedAccount: AssetAccount | null
-  allow: boolean
+  liquidityState: number
+  pool: PoolWithPubkey | null
 }
+
+export const LIQUIDITY_STATE_VALUES = [
+  { name: 'Genesis Liquidity', value: LiquidityState.GenesisLiquidity },
+  { name: 'Idle', value: LiquidityState.Idle },
+  { name: 'Active', value: LiquidityState.Active },
+]
 
 export default function SetPoolLiquidityState({
   index,
@@ -25,17 +34,24 @@ export default function SetPoolLiquidityState({
   index: number
   governance: ProgramAccount<Governance> | null
 }) {
-  const adrenaProgram = useAdrenaProgram()
   const { assetAccounts } = useGovernanceAssets()
   const shouldBeGoverned = !!(index !== 0 && governance)
 
-  const [form, setForm] = useState<SetPoolLiquidityStateForm>({
+  const [form, setForm] = useState<SetPoolAumSoftCapUsdForm>({
     governedAccount: null,
-    allow: false,
+    liquidityState: LIQUIDITY_STATE_VALUES[2].value, // Default is Active
+    pool: null,
   })
   const [formErrors, setFormErrors] = useState({})
 
   const { handleSetInstructions } = useContext(NewProposalContext)
+
+  // TODO: load the program owned by the selected governance: form.governedAccount?.governance
+  const adrenaClient = useAdrenaClient(
+    new PublicKey('2ZHEtEKT7S1dSPodH2Sdu6cErDyFWad6Yc35cbbqtAaV')
+  )
+
+  const pools = useAdrenaPools(adrenaClient)
 
   const validateInstruction = async (): Promise<boolean> => {
     const { isValid, validationErrors } = await isFormValid(schema, form)
@@ -49,7 +65,7 @@ export default function SetPoolLiquidityState({
     const isValid = await validateInstruction()
     const governance = form.governedAccount?.governance
 
-    if (!isValid || !governance || !adrenaProgram) {
+    if (!isValid || !governance || !adrenaClient || !form.pool) {
       return {
         serializedInstruction: '',
         isValid,
@@ -58,14 +74,14 @@ export default function SetPoolLiquidityState({
       }
     }
 
-    const instruction = await adrenaProgram.methods
-      .setPoolAllowSwap({
-        allowSwap: form.allow,
+    const instruction = await adrenaClient.program.methods
+      .setPoolLiquidityState({
+        liquidityState: form.liquidityState,
       })
       .accountsStrict({
         admin: governance.nativeTreasuryAddress,
-        cortex: AdrenaPdaUtils.getCortexPda(),
-        pool: AdrenaPdaUtils.getMainPoolPda(),
+        cortex: adrenaClient.cortexPda,
+        pool: form.pool.pubkey,
       })
       .instruction()
 
@@ -90,7 +106,7 @@ export default function SetPoolLiquidityState({
       .object()
       .nullable()
       .required('Program governed account is required'),
-    allow: yup.boolean().required('Allow is required'),
+    liquidityState: yup.number().required('Liquidity state is required'),
   })
 
   const inputs: InstructionInput[] = [
@@ -104,10 +120,22 @@ export default function SetPoolLiquidityState({
       options: assetAccounts,
     },
     {
-      label: 'Allow Swap',
-      initialValue: form.allow,
-      type: InstructionInputType.SWITCH,
-      name: 'allow',
+      label: 'Pool',
+      initialValue: form.pool,
+      type: InstructionInputType.SELECT,
+      name: 'pool',
+      options:
+        pools?.map((p) => ({
+          name: p.name.value.toString(),
+          value: p,
+        })) ?? [],
+    },
+    {
+      label: 'Liquidity State',
+      initialValue: form.liquidityState,
+      type: InstructionInputType.SELECT,
+      name: 'liquidityState',
+      options: LIQUIDITY_STATE_VALUES,
     },
   ]
 

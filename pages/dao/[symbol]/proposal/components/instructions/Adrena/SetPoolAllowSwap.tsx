@@ -10,12 +10,15 @@ import InstructionForm, { InstructionInput } from '../FormCreator'
 import { InstructionInputType } from '../inputInstructionType'
 import { NewProposalContext } from '../../../new'
 import { AssetAccount } from '@utils/uiTypes/assets'
-import useAdrenaProgram from '@hooks/useAdrenaProgram'
-import * as AdrenaPdaUtils from '@tools/sdk/adrena/utils'
+import { PoolWithPubkey } from '@tools/sdk/adrena/Adrena'
+import useAdrenaClient from '@hooks/useAdrenaClient'
+import { PublicKey } from '@solana/web3.js'
+import useAdrenaPools from '@hooks/useAdrenaPools'
 
 export interface SetPoolAllowSwapForm {
   governedAccount: AssetAccount | null
   allow: boolean
+  pool: PoolWithPubkey | null
 }
 
 export default function SetPoolAllowSwap({
@@ -25,17 +28,24 @@ export default function SetPoolAllowSwap({
   index: number
   governance: ProgramAccount<Governance> | null
 }) {
-  const adrenaProgram = useAdrenaProgram()
   const { assetAccounts } = useGovernanceAssets()
   const shouldBeGoverned = !!(index !== 0 && governance)
 
   const [form, setForm] = useState<SetPoolAllowSwapForm>({
     governedAccount: null,
     allow: false,
+    pool: null,
   })
   const [formErrors, setFormErrors] = useState({})
 
   const { handleSetInstructions } = useContext(NewProposalContext)
+
+  // TODO: load the program owned by the selected governance: form.governedAccount?.governance
+  const adrenaClient = useAdrenaClient(
+    new PublicKey('2ZHEtEKT7S1dSPodH2Sdu6cErDyFWad6Yc35cbbqtAaV')
+  )
+
+  const pools = useAdrenaPools(adrenaClient)
 
   const validateInstruction = async (): Promise<boolean> => {
     const { isValid, validationErrors } = await isFormValid(schema, form)
@@ -49,7 +59,7 @@ export default function SetPoolAllowSwap({
     const isValid = await validateInstruction()
     const governance = form.governedAccount?.governance
 
-    if (!isValid || !governance || !adrenaProgram) {
+    if (!isValid || !governance || !adrenaClient || !form.pool) {
       return {
         serializedInstruction: '',
         isValid,
@@ -58,14 +68,14 @@ export default function SetPoolAllowSwap({
       }
     }
 
-    const instruction = await adrenaProgram.methods
+    const instruction = await adrenaClient.program.methods
       .setPoolAllowSwap({
         allowSwap: form.allow,
       })
       .accountsStrict({
         admin: governance.nativeTreasuryAddress,
-        cortex: AdrenaPdaUtils.getCortexPda(),
-        pool: AdrenaPdaUtils.getMainPoolPda(),
+        cortex: adrenaClient.cortexPda,
+        pool: form.pool.pubkey,
       })
       .instruction()
 
@@ -102,6 +112,17 @@ export default function SetPoolAllowSwap({
       shouldBeGoverned: shouldBeGoverned as any,
       governance,
       options: assetAccounts,
+    },
+    {
+      label: 'Pool',
+      initialValue: form.pool,
+      type: InstructionInputType.SELECT,
+      name: 'pool',
+      options:
+        pools?.map((p) => ({
+          name: p.name.value.toString(),
+          value: p,
+        })) ?? [],
     },
     {
       label: 'Allow Swap',

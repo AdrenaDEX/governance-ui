@@ -1,33 +1,32 @@
 import { useEffect, useState } from 'react'
 import { PublicKey } from '@solana/web3.js'
 
-import { Adrena, IDL as ADRENA_IDL } from '../idls/adrena'
-import AdrenaJson from '../idls/adrena.json'
-
 import { useConnection } from '@solana/wallet-adapter-react'
-import { AnchorProvider, Program, Wallet } from '@coral-xyz/anchor'
+import { AnchorProvider, Wallet } from '@coral-xyz/anchor'
 import useWalletOnePointOh from './useWalletOnePointOh'
+import AdrenaClient from '@tools/sdk/adrena/Adrena'
 
-export default function useAdrenaProgram(): Program<Adrena> | null {
+export default function useAdrenaClient(
+  programId: PublicKey | null
+): AdrenaClient | null {
   const { connection } = useConnection()
   const wallet = useWalletOnePointOh()
-  const [adrenaProgram, setAdrenaProgram] = useState<Program<Adrena> | null>(
-    null
-  )
+  const [adrenaClient, setAdrenaClient] = useState<AdrenaClient | null>(null)
 
   useEffect(() => {
-    setAdrenaProgram(
-      new Program(
-        ADRENA_IDL,
-        new PublicKey(AdrenaJson.metadata.address),
+    if (!programId) return setAdrenaClient(null)
+
+    setAdrenaClient(
+      new AdrenaClient(
         // The wallet type is compatible with the anchor provider, force typing
         new AnchorProvider(connection, (wallet as unknown) as Wallet, {
           commitment: 'processed',
           skipPreflight: true,
-        })
+        }),
+        programId
       )
     )
-  }, [connection, wallet])
+  }, [connection, wallet, programId])
 
-  return adrenaProgram
+  return adrenaClient
 }

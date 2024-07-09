@@ -10,32 +10,43 @@ import InstructionForm, { InstructionInput } from '../FormCreator'
 import { InstructionInputType } from '../inputInstructionType'
 import { NewProposalContext } from '../../../new'
 import { AssetAccount } from '@utils/uiTypes/assets'
-import useAdrenaProgram from '@hooks/useAdrenaProgram'
-import * as AdrenaPdaUtils from '@tools/sdk/adrena/utils'
+import { PoolWithPubkey } from '@tools/sdk/adrena/Adrena'
+import useAdrenaClient from '@hooks/useAdrenaClient'
+import { PublicKey } from '@solana/web3.js'
+import useAdrenaPools from '@hooks/useAdrenaPools'
+import { BN } from '@coral-xyz/anchor'
 
 export interface SetPoolAumSoftCapUsdForm {
   governedAccount: AssetAccount | null
-  allow: boolean
+  aumSoftCapUsd: number
+  pool: PoolWithPubkey | null
 }
 
-export default function SetPoolAumSoftCapUsd({
+export default function SetPoolAllowSwap({
   index,
   governance,
 }: {
   index: number
   governance: ProgramAccount<Governance> | null
 }) {
-  const adrenaProgram = useAdrenaProgram()
   const { assetAccounts } = useGovernanceAssets()
   const shouldBeGoverned = !!(index !== 0 && governance)
 
   const [form, setForm] = useState<SetPoolAumSoftCapUsdForm>({
     governedAccount: null,
-    allow: false,
+    aumSoftCapUsd: 0,
+    pool: null,
   })
   const [formErrors, setFormErrors] = useState({})
 
   const { handleSetInstructions } = useContext(NewProposalContext)
+
+  // TODO: load the program owned by the selected governance: form.governedAccount?.governance
+  const adrenaClient = useAdrenaClient(
+    new PublicKey('2ZHEtEKT7S1dSPodH2Sdu6cErDyFWad6Yc35cbbqtAaV')
+  )
+
+  const pools = useAdrenaPools(adrenaClient)
 
   const validateInstruction = async (): Promise<boolean> => {
     const { isValid, validationErrors } = await isFormValid(schema, form)
@@ -49,7 +60,7 @@ export default function SetPoolAumSoftCapUsd({
     const isValid = await validateInstruction()
     const governance = form.governedAccount?.governance
 
-    if (!isValid || !governance || !adrenaProgram) {
+    if (!isValid || !governance || !adrenaClient || !form.pool) {
       return {
         serializedInstruction: '',
         isValid,
@@ -58,14 +69,14 @@ export default function SetPoolAumSoftCapUsd({
       }
     }
 
-    const instruction = await adrenaProgram.methods
-      .setPoolAllowSwap({
-        allowSwap: form.allow,
+    const instruction = await adrenaClient.program.methods
+      .setPoolAumSoftCapUsd({
+        aumSoftCapUsd: new BN(form.aumSoftCapUsd * 10 ** 6),
       })
       .accountsStrict({
         admin: governance.nativeTreasuryAddress,
-        cortex: AdrenaPdaUtils.getCortexPda(),
-        pool: AdrenaPdaUtils.getMainPoolPda(),
+        cortex: adrenaClient.cortexPda,
+        pool: form.pool.pubkey,
       })
       .instruction()
 
@@ -90,7 +101,7 @@ export default function SetPoolAumSoftCapUsd({
       .object()
       .nullable()
       .required('Program governed account is required'),
-    allow: yup.boolean().required('Allow is required'),
+    aumSoftCapUsd: yup.number().required('Aum soft cap usd is required'),
   })
 
   const inputs: InstructionInput[] = [
@@ -104,10 +115,22 @@ export default function SetPoolAumSoftCapUsd({
       options: assetAccounts,
     },
     {
-      label: 'Allow Swap',
-      initialValue: form.allow,
-      type: InstructionInputType.SWITCH,
-      name: 'allow',
+      label: 'Pool',
+      initialValue: form.pool,
+      type: InstructionInputType.SELECT,
+      name: 'pool',
+      options:
+        pools?.map((p) => ({
+          name: p.name.value.toString(),
+          value: p,
+        })) ?? [],
+    },
+    {
+      label: 'Aum Soft Cap Usd',
+      initialValue: form.aumSoftCapUsd,
+      type: InstructionInputType.INPUT,
+      name: 'aumSoftCapUsd',
+      inputType: 'number',
     },
   ]
 

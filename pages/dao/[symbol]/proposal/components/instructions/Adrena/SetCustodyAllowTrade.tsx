@@ -10,12 +10,17 @@ import InstructionForm, { InstructionInput } from '../FormCreator'
 import { InstructionInputType } from '../inputInstructionType'
 import { NewProposalContext } from '../../../new'
 import { AssetAccount } from '@utils/uiTypes/assets'
-import useAdrenaProgram from '@hooks/useAdrenaProgram'
-import * as AdrenaPdaUtils from '@tools/sdk/adrena/utils'
+import { CustodyWithPubkey, PoolWithPubkey } from '@tools/sdk/adrena/Adrena'
+import useAdrenaClient from '@hooks/useAdrenaClient'
+import { PublicKey } from '@solana/web3.js'
+import useAdrenaPools from '@hooks/useAdrenaPools'
+import useAdrenaCustodies from '@hooks/useAdrenaCustodies'
 
 export interface SetCustodyAllowTradeForm {
   governedAccount: AssetAccount | null
   allow: boolean
+  pool: PoolWithPubkey | null
+  custody: CustodyWithPubkey | null
 }
 
 export default function SetCustodyAllowTrade({
@@ -25,17 +30,26 @@ export default function SetCustodyAllowTrade({
   index: number
   governance: ProgramAccount<Governance> | null
 }) {
-  const adrenaProgram = useAdrenaProgram()
   const { assetAccounts } = useGovernanceAssets()
   const shouldBeGoverned = !!(index !== 0 && governance)
 
   const [form, setForm] = useState<SetCustodyAllowTradeForm>({
     governedAccount: null,
     allow: false,
+    pool: null,
+    custody: null,
   })
   const [formErrors, setFormErrors] = useState({})
 
   const { handleSetInstructions } = useContext(NewProposalContext)
+
+  // TODO: load the program owned by the selected governance: form.governedAccount?.governance
+  const adrenaClient = useAdrenaClient(
+    new PublicKey('2ZHEtEKT7S1dSPodH2Sdu6cErDyFWad6Yc35cbbqtAaV')
+  )
+
+  const pools = useAdrenaPools(adrenaClient)
+  const custodies = useAdrenaCustodies(adrenaClient, form.pool)
 
   const validateInstruction = async (): Promise<boolean> => {
     const { isValid, validationErrors } = await isFormValid(schema, form)
@@ -49,7 +63,13 @@ export default function SetCustodyAllowTrade({
     const isValid = await validateInstruction()
     const governance = form.governedAccount?.governance
 
-    if (!isValid || !governance || !adrenaProgram) {
+    if (
+      !isValid ||
+      !governance ||
+      !adrenaClient ||
+      !form.pool ||
+      !form.custody
+    ) {
       return {
         serializedInstruction: '',
         isValid,
@@ -58,14 +78,15 @@ export default function SetCustodyAllowTrade({
       }
     }
 
-    const instruction = await adrenaProgram.methods
-      .setPoolAllowSwap({
-        allowSwap: form.allow,
+    const instruction = await adrenaClient.program.methods
+      .setCustodyAllowTrade({
+        allowTrade: form.allow,
       })
       .accountsStrict({
         admin: governance.nativeTreasuryAddress,
-        cortex: AdrenaPdaUtils.getCortexPda(),
-        pool: AdrenaPdaUtils.getMainPoolPda(),
+        cortex: adrenaClient.cortexPda,
+        pool: form.pool.pubkey,
+        custody: form.custody.pubkey,
       })
       .instruction()
 
@@ -104,7 +125,29 @@ export default function SetCustodyAllowTrade({
       options: assetAccounts,
     },
     {
-      label: 'Allow Swap',
+      label: 'Pool',
+      initialValue: form.pool,
+      type: InstructionInputType.SELECT,
+      name: 'pool',
+      options:
+        pools?.map((p) => ({
+          name: p.name.value.toString(),
+          value: p,
+        })) ?? [],
+    },
+    {
+      label: 'Custody',
+      initialValue: form.custody,
+      type: InstructionInputType.SELECT,
+      name: 'custody',
+      options:
+        custodies?.map((c) => ({
+          name: c.pubkey.toBase58(),
+          value: c,
+        })) ?? [],
+    },
+    {
+      label: 'Allow Trade',
       initialValue: form.allow,
       type: InstructionInputType.SWITCH,
       name: 'allow',

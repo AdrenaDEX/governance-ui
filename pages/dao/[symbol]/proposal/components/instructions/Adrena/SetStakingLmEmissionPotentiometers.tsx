@@ -10,12 +10,15 @@ import InstructionForm, { InstructionInput } from '../FormCreator'
 import { InstructionInputType } from '../inputInstructionType'
 import { NewProposalContext } from '../../../new'
 import { AssetAccount } from '@utils/uiTypes/assets'
-import useAdrenaProgram from '@hooks/useAdrenaProgram'
-import * as AdrenaPdaUtils from '@tools/sdk/adrena/utils'
+import useAdrenaClient from '@hooks/useAdrenaClient'
+import { PublicKey } from '@solana/web3.js'
+import useAdrenaStakings from '@hooks/useAdrenaStakings'
+import { StakingWithPubkey } from '@tools/sdk/adrena/Adrena'
 
 export interface SetStakingLmEmissionPotentiometersForm {
   governedAccount: AssetAccount | null
-  allow: boolean
+  lmEmissionPotentiometerBps: number
+  staking: StakingWithPubkey | null
 }
 
 export default function SetStakingLmEmissionPotentiometers({
@@ -25,17 +28,24 @@ export default function SetStakingLmEmissionPotentiometers({
   index: number
   governance: ProgramAccount<Governance> | null
 }) {
-  const adrenaProgram = useAdrenaProgram()
   const { assetAccounts } = useGovernanceAssets()
   const shouldBeGoverned = !!(index !== 0 && governance)
 
   const [form, setForm] = useState<SetStakingLmEmissionPotentiometersForm>({
     governedAccount: null,
-    allow: false,
+    lmEmissionPotentiometerBps: 0,
+    staking: null,
   })
   const [formErrors, setFormErrors] = useState({})
 
   const { handleSetInstructions } = useContext(NewProposalContext)
+
+  // TODO: load the program owned by the selected governance: form.governedAccount?.governance
+  const adrenaClient = useAdrenaClient(
+    new PublicKey('2ZHEtEKT7S1dSPodH2Sdu6cErDyFWad6Yc35cbbqtAaV')
+  )
+
+  const stakings = useAdrenaStakings(adrenaClient)
 
   const validateInstruction = async (): Promise<boolean> => {
     const { isValid, validationErrors } = await isFormValid(schema, form)
@@ -49,7 +59,7 @@ export default function SetStakingLmEmissionPotentiometers({
     const isValid = await validateInstruction()
     const governance = form.governedAccount?.governance
 
-    if (!isValid || !governance || !adrenaProgram) {
+    if (!isValid || !governance || !adrenaClient || !form.staking) {
       return {
         serializedInstruction: '',
         isValid,
@@ -58,14 +68,14 @@ export default function SetStakingLmEmissionPotentiometers({
       }
     }
 
-    const instruction = await adrenaProgram.methods
-      .setPoolAllowSwap({
-        allowSwap: form.allow,
+    const instruction = await adrenaClient.program.methods
+      .setStakingLmEmissionPotentiometers({
+        lmEmissionPotentiometerBps: form.lmEmissionPotentiometerBps,
       })
       .accountsStrict({
         admin: governance.nativeTreasuryAddress,
-        cortex: AdrenaPdaUtils.getCortexPda(),
-        pool: AdrenaPdaUtils.getMainPoolPda(),
+        cortex: adrenaClient.cortexPda,
+        staking: form.staking.pubkey,
       })
       .instruction()
 
@@ -90,7 +100,9 @@ export default function SetStakingLmEmissionPotentiometers({
       .object()
       .nullable()
       .required('Program governed account is required'),
-    allow: yup.boolean().required('Allow is required'),
+    lmEmissionPotentiometerBps: yup
+      .number()
+      .required('LM emission potentiometer BPS is required'),
   })
 
   const inputs: InstructionInput[] = [
@@ -104,10 +116,22 @@ export default function SetStakingLmEmissionPotentiometers({
       options: assetAccounts,
     },
     {
-      label: 'Allow Swap',
-      initialValue: form.allow,
-      type: InstructionInputType.SWITCH,
-      name: 'allow',
+      label: 'LM Emission Potentiometer BPS',
+      initialValue: form.lmEmissionPotentiometerBps,
+      type: InstructionInputType.INPUT,
+      inputType: 'number',
+      name: 'lmEmissionPotentiometerBps',
+    },
+    {
+      label: 'Staking',
+      initialValue: form.staking,
+      type: InstructionInputType.SELECT,
+      name: 'staking',
+      options:
+        stakings?.map((p) => ({
+          name: p.pubkey.toBase58(),
+          value: p,
+        })) ?? [],
     },
   ]
 

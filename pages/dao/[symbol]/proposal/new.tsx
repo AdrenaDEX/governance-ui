@@ -63,7 +63,6 @@ import AdrenaAddVest from './components/instructions/Adrena/AddVest'
 import AdrenaMintLmTokensFromBucket from './components/instructions/Adrena/MintLmTokensFromBucket'
 import AdrenaSetCustodyAllowSwap from './components/instructions/Adrena/SetCustodyAllowSwap'
 import AdrenaSetCustodyAllowTrade from './components/instructions/Adrena/SetCustodyAllowTrade'
-import AdrenaSetCustodyConfig from './components/instructions/Adrena/SetCustodyConfig'
 import AdrenaSetCustodyMaxCumulativeShortSizeUsd from './components/instructions/Adrena/SetCustodyMaxCumulativeShortSizeUsd'
 import AdrenaSetPoolAllowSwap from './components/instructions/Adrena/SetPoolAllowSwap'
 import AdrenaSetPoolAllowTrade from './components/instructions/Adrena/SetPoolAllowTrade'
@@ -480,7 +479,6 @@ const New = () => {
       [Instructions.AdrenaMintLmTokensFromBucket]: AdrenaMintLmTokensFromBucket,
       [Instructions.AdrenaSetCustodyAllowSwap]: AdrenaSetCustodyAllowSwap,
       [Instructions.AdrenaSetCustodyAllowTrade]: AdrenaSetCustodyAllowTrade,
-      [Instructions.AdrenaSetCustodyConfig]: AdrenaSetCustodyConfig,
       [Instructions.AdrenaSetCustodyMaxCumulativeShortSizeUsd]: AdrenaSetCustodyMaxCumulativeShortSizeUsd,
       [Instructions.AdrenaSetPoolAllowSwap]: AdrenaSetPoolAllowSwap,
       [Instructions.AdrenaSetPoolAllowTrade]: AdrenaSetPoolAllowTrade,

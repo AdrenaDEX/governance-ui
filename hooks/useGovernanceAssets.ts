@@ -240,10 +240,6 @@ export default function useGovernanceAssets() {
       name: 'Set Custody Allow Trade',
       packageId: PackageEnum.Adrena,
     },
-    [Instructions.AdrenaSetCustodyConfig]: {
-      name: 'Set Custody Config',
-      packageId: PackageEnum.Adrena,
-    },
     [Instructions.AdrenaSetCustodyMaxCumulativeShortSizeUsd]: {
       name: 'Set Custody Max Cumulative Short Size Usd',
       packageId: PackageEnum.Adrena,
