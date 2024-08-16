@@ -57,8 +57,8 @@ import ConfigureNftPluginCollection from './components/instructions/NftVotingPlu
 import SwitchboardFundOracle from './components/instructions/Switchboard/FundOracle'
 import WithdrawFromOracle from './components/instructions/Switchboard/WithdrawFromOracle'
 import StakeValidator from './components/instructions/Validators/StakeValidator'
-import SanctumSplDepositStake from './components/instructions/Validators/SanctumSplDepositStake'
-
+import SanctumDepositStake from './components/instructions/Validators/SanctumDepositStake'
+import SanctumWithdrawStake from './components/instructions/Validators/SanctumWithdrawStake'
 import AdrenaAddVest from './components/instructions/Adrena/AddVest'
 import AdrenaMintLmTokensFromBucket from './components/instructions/Adrena/MintLmTokensFromBucket'
 import AdrenaSetCustodyAllowSwap from './components/instructions/Adrena/SetCustodyAllowSwap'
@@ -69,7 +69,6 @@ import AdrenaSetPoolAllowTrade from './components/instructions/Adrena/SetPoolAll
 import AdrenaSetPoolAumSoftCapUsd from './components/instructions/Adrena/SetPoolAumSoftCapUsd'
 import AdrenaSetPoolLiquidityState from './components/instructions/Adrena/SetPoolLiquidityState'
 import AdrenaSetStakingLmEmissionPotentiometers from './components/instructions/Adrena/SetStakingLmEmissionPotentiometers'
-
 import DeactivateValidatorStake from './components/instructions/Validators/DeactivateStake'
 import WithdrawValidatorStake from './components/instructions/Validators/WithdrawStake'
 import DelegateStake from './components/instructions/Validators/DelegateStake'
@@ -560,7 +559,8 @@ const New = () => {
       [Instructions.CreateTokenMetadata]: CreateTokenMetadata,
       [Instructions.UpdateTokenMetadata]: UpdateTokenMetadata,
       [Instructions.StakeValidator]: StakeValidator,
-      [Instructions.SanctumSplDepositStake]: SanctumSplDepositStake,
+      [Instructions.SanctumDepositStake]: SanctumDepositStake,
+      [Instructions.SanctumWithdrawStake]: SanctumWithdrawStake,
       [Instructions.DeactivateValidatorStake]: DeactivateValidatorStake,
       [Instructions.WithdrawValidatorStake]: WithdrawValidatorStake,
       [Instructions.DelegateStake]: DelegateStake,

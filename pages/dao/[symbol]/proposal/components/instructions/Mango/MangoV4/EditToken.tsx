@@ -351,7 +351,12 @@ const EditToken = ({
           getNullOrTransform(values.maintWeightShiftLiabTarget, null, Number),
           values.maintWeightShiftAbort!,
           values.setFallbackOracle!,
-          getNullOrTransform(values.depositLimit, BN),
+          getNullOrTransform(
+            values.depositLimit !== null && values.depositLimit !== undefined
+              ? values.depositLimit?.toString()
+              : null,
+            BN
+          ),
           getNullOrTransform(values.zeroUtilRate, null, Number),
           getNullOrTransform(values.platformLiquidationFee, null, Number),
           values.disableAssetLiquidation!,
@@ -365,7 +370,7 @@ const EditToken = ({
           mintInfo: mintInfo.publicKey,
           fallbackOracle: form.fallbackOracle
             ? new PublicKey(form.fallbackOracle)
-            : bank.fallbackOracle,
+            : PublicKey.default,
         })
         .remainingAccounts([
           {
@@ -479,6 +484,7 @@ const EditToken = ({
         zeroUtilRate: currentToken.zeroUtilRate.toNumber(),
         platformLiquidationFee: currentToken.platformLiquidationFee.toNumber(),
         collateralFeePerDay: currentToken.collateralFeePerDay,
+        disableAssetLiquidation: !currentToken.allowAssetLiquidation,
       }
       setForm((prevForm) => ({
         ...prevForm,

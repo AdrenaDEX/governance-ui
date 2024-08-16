@@ -30,9 +30,9 @@
   },
   "dependencies": {
     "@blockworks-foundation/mango-mints-redemption": "0.0.11",
-    "@blockworks-foundation/mango-v4": "0.26.0",
-    "@blockworks-foundation/mango-v4-settings": "0.14.22",
-    "@blockworks-foundation/mangolana": "0.0.17",
+    "@blockworks-foundation/mango-v4": "0.32.12",
+    "@blockworks-foundation/mango-v4-settings": "0.14.24",
+    "@blockworks-foundation/mangolana": "0.0.18",
     "@bonfida/spl-name-service": "0.1.47",
     "@bundlr-network/client": "0.7.15",
     "@carbon/icons-react": "11.7.0",
@@ -64,6 +64,7 @@
     "@next/bundle-analyzer": "12.1.5",
     "@nivo/bar": "0.79.1",
     "@nivo/core": "0.79.0",
+    "@parcl-oss/staking": "0.0.2",
     "@project-serum/common": "0.0.1-beta.3",
     "@project-serum/serum": "0.13.65",
     "@project-serum/sol-wallet-adapter": "0.2.6",
@@ -172,8 +173,9 @@
     "ts-node": "10.9.1",
     "tsconfig-paths": "3.14.1",
     "urql": "3.0.3",
-    "yup": "1.4.0",
-    "zustand": "3.7.2"
+    "yup": "0.32.11",
+    "zustand": "3.7.2",
+    "@solana/promises": "2.0.0-canary-20240812091942"
   },
   "devDependencies": {
     "@lavamoat/allow-scripts": "2.3.0",
@@ -272,7 +274,11 @@
       "@solana/web3.js>rpc-websockets>utf-8-validate": true,
       "@testing-library/react>@testing-library/dom>aria-query>@babel/runtime-corejs3>core-js-pure": false,
       "draft-js>fbjs>core-js": false,
-      "@switchboard-xyz/solana.js>@switchboard-xyz/common>protobufjs": false
+      "@switchboard-xyz/solana.js>@switchboard-xyz/common>protobufjs": false,
+      "@blockworks-foundation/mango-v4>@raydium-io/raydium-sdk>tsup>esbuild": true,
+      "@blockworks-foundation/mangolana>@solana/web3.js>bigint-buffer": true,
+      "@blockworks-foundation/mangolana>ws>bufferutil": true,
+      "@blockworks-foundation/mangolana>ws>utf-8-validate": true
     }
   },
   "volta": {
