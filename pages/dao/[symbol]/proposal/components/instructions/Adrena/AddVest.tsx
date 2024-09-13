@@ -33,6 +33,7 @@ export interface AddVestForm {
   originBucket: number
   unlockStartTimestamp: number
   unlockEndTimestamp: number
+  voteMultiplier: number
 }
 
 export default function AddVest({
@@ -53,6 +54,7 @@ export default function AddVest({
     originBucket: ORIGIN_BUCKET_VALUES[3].value, // Ecosystem as default
     unlockStartTimestamp: 0,
     unlockEndTimestamp: 0,
+    voteMultiplier: 0,
   })
 
   const [formErrors, setFormErrors] = useState({})
@@ -61,7 +63,7 @@ export default function AddVest({
 
   // TODO: load the program owned by the selected governance: form.governedAccount?.governance
   const adrenaClient = useAdrenaClient(
-    new PublicKey('2ZHEtEKT7S1dSPodH2Sdu6cErDyFWad6Yc35cbbqtAaV')
+    new PublicKey('3UT4rMBgSTi6NPHVYKM5AxaWgrkGNJeFQED8NK86axk3')
   )
 
   const validateInstruction = async (): Promise<boolean> => {
@@ -94,6 +96,7 @@ export default function AddVest({
         originBucket: form.originBucket,
         unlockStartTimestamp: new BN(form.unlockStartTimestamp),
         unlockEndTimestamp: new BN(form.unlockEndTimestamp),
+        voteMultiplier: Math.floor(form.voteMultiplier * 10000),
       })
       .accountsStrict({
         admin: governance.nativeTreasuryAddress,
@@ -153,6 +156,7 @@ export default function AddVest({
     unlockEndTimestamp: yup
       .number()
       .required('Unlock end timestamp is required'),
+    voteMultiplier: yup.number().required('Vote multiplier is required'),
   })
 
   const inputs: InstructionInput[] = [
@@ -196,6 +200,13 @@ export default function AddVest({
     {
       label: 'Unlock End Timestamp',
       initialValue: form.unlockEndTimestamp,
+      type: InstructionInputType.INPUT,
+      inputType: 'number',
+      name: 'unlockEndTimestamp',
+    },
+    {
+      label: 'Vote Multiplier',
+      initialValue: form.voteMultiplier,
       type: InstructionInputType.INPUT,
       inputType: 'number',
       name: 'unlockEndTimestamp',
