@@ -12,6 +12,7 @@ import * as PaymentStreaming from '@mean-dao/payment-streaming'
 
 // Alphabetical order
 export enum PackageEnum {
+  Adrena,
   Common,
   Distribution,
   Dual,
@@ -121,7 +122,8 @@ export interface ClawbackForm {
   holdupTime: number
 }
 
-export interface SendTokenCompactViewForm extends Omit<SplTokenTransferForm, 'amount' | 'destinationAccount'> {
+export interface SendTokenCompactViewForm
+  extends Omit<SplTokenTransferForm, 'amount' | 'destinationAccount'> {
   destinationAccount: string[]
   amount: (number | undefined)[]
   txDollarAmount: (string | undefined)[]
@@ -295,6 +297,16 @@ export interface JoinDAOForm {
 }
 
 export enum Instructions {
+  AdrenaAddVest,
+  AdrenaMintLmTokensFromBucket,
+  AdrenaSetCustodyAllowSwap,
+  AdrenaSetCustodyAllowTrade,
+  AdrenaSetCustodyMaxCumulativeShortSizeUsd,
+  AdrenaSetPoolAllowSwap,
+  AdrenaSetPoolAllowTrade,
+  AdrenaSetPoolAumSoftCapUsd,
+  AdrenaSetPoolLiquidityState,
+  AdrenaSetStakingLmEmissionPotentiometers,
   Base64,
   Burn,
   ChangeMakeDonation,

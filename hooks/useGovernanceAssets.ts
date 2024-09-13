@@ -140,6 +140,10 @@ export default function useGovernanceAssets() {
   //
   // Packages are visible by default
   const packages: Packages = {
+    [PackageEnum.Adrena]: {
+      name: 'Adrena',
+      image: '/img/adrena.svg',
+    },
     [PackageEnum.Common]: {
       name: 'Common',
     },
@@ -217,6 +221,54 @@ export default function useGovernanceAssets() {
   //
   // If isVisible is not set, it is equal to canUseAnyInstruction
   const instructionsMap: InstructionsMap = {
+    /*
+       █████  ██████  ██████  ███████ ███    ██  █████  
+      ██   ██ ██   ██ ██   ██ ██      ████   ██ ██   ██ 
+      ███████ ██   ██ ██████  █████   ██ ██  ██ ███████ 
+      ██   ██ ██   ██ ██   ██ ██      ██  ██ ██ ██   ██ 
+      ██   ██ ██████  ██   ██ ███████ ██   ████ ██   ██
+    */
+    [Instructions.AdrenaAddVest]: {
+      name: 'Add Vest',
+      packageId: PackageEnum.Adrena,
+    },
+    [Instructions.AdrenaMintLmTokensFromBucket]: {
+      name: 'Mint LM Tokens from Bucket',
+      packageId: PackageEnum.Adrena,
+    },
+    [Instructions.AdrenaSetCustodyAllowSwap]: {
+      name: 'Set Custody Allow Swap',
+      packageId: PackageEnum.Adrena,
+    },
+    [Instructions.AdrenaSetCustodyAllowTrade]: {
+      name: 'Set Custody Allow Trade',
+      packageId: PackageEnum.Adrena,
+    },
+    [Instructions.AdrenaSetCustodyMaxCumulativeShortSizeUsd]: {
+      name: 'Set Custody Max Cumulative Short Size Usd',
+      packageId: PackageEnum.Adrena,
+    },
+    [Instructions.AdrenaSetPoolAllowSwap]: {
+      name: 'Set Pool Allow Swap',
+      packageId: PackageEnum.Adrena,
+    },
+    [Instructions.AdrenaSetPoolAllowTrade]: {
+      name: 'Set Pool Allow Trade',
+      packageId: PackageEnum.Adrena,
+    },
+    [Instructions.AdrenaSetPoolAumSoftCapUsd]: {
+      name: 'Set Pool Aum Soft Cap Usd',
+      packageId: PackageEnum.Adrena,
+    },
+    [Instructions.AdrenaSetPoolLiquidityState]: {
+      name: 'Set Pool Liquidity State',
+      packageId: PackageEnum.Adrena,
+    },
+    [Instructions.AdrenaSetStakingLmEmissionPotentiometers]: {
+      name: 'Set Staking LM Emission Potentiometers',
+      packageId: PackageEnum.Adrena,
+    },
+
     /*
         ██████  ██████  ███    ███ ███    ███  ██████  ███    ██
        ██      ██    ██ ████  ████ ████  ████ ██    ██ ████   ██
