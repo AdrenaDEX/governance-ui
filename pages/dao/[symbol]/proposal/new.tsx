@@ -59,7 +59,6 @@ import WithdrawFromOracle from './components/instructions/Switchboard/WithdrawFr
 import StakeValidator from './components/instructions/Validators/StakeValidator'
 import SanctumDepositStake from './components/instructions/Validators/SanctumDepositStake'
 import SanctumWithdrawStake from './components/instructions/Validators/SanctumWithdrawStake'
-import AdrenaAddVest from './components/instructions/Adrena/AddVest'
 import AdrenaMintLmTokensFromBucket from './components/instructions/Adrena/MintLmTokensFromBucket'
 import AdrenaSetCustodyAllowSwap from './components/instructions/Adrena/SetCustodyAllowSwap'
 import AdrenaSetCustodyAllowTrade from './components/instructions/Adrena/SetCustodyAllowTrade'
@@ -479,7 +478,6 @@ const New = () => {
       | null
   } = useMemo(
     () => ({
-      [Instructions.AdrenaAddVest]: AdrenaAddVest,
       [Instructions.AdrenaMintLmTokensFromBucket]: AdrenaMintLmTokensFromBucket,
       [Instructions.AdrenaSetCustodyAllowSwap]: AdrenaSetCustodyAllowSwap,
       [Instructions.AdrenaSetCustodyAllowTrade]: AdrenaSetCustodyAllowTrade,

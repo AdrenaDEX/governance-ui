@@ -228,10 +228,6 @@ export default function useGovernanceAssets() {
       ██   ██ ██   ██ ██   ██ ██      ██  ██ ██ ██   ██ 
       ██   ██ ██████  ██   ██ ███████ ██   ████ ██   ██
     */
-    [Instructions.AdrenaAddVest]: {
-      name: 'Add Vest',
-      packageId: PackageEnum.Adrena,
-    },
     [Instructions.AdrenaMintLmTokensFromBucket]: {
       name: 'Mint LM Tokens from Bucket',
       packageId: PackageEnum.Adrena,
