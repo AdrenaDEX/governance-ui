@@ -264,6 +264,14 @@ export default function useGovernanceAssets() {
       name: 'Set Staking LM Emission Potentiometers',
       packageId: PackageEnum.Adrena,
     },
+    [Instructions.AdrenaGenesisOtcIn]: {
+      name: 'Genesis OTC IN',
+      packageId: PackageEnum.Adrena,
+    },
+    [Instructions.AdrenaGenesisOtcOut]: {
+      name: 'Genesis OTC OUT',
+      packageId: PackageEnum.Adrena,
+    },
 
     /*
         ██████  ██████  ███    ███ ███    ███  ██████  ███    ██

@@ -68,6 +68,8 @@ import AdrenaSetPoolAllowTrade from './components/instructions/Adrena/SetPoolAll
 import AdrenaSetPoolAumSoftCapUsd from './components/instructions/Adrena/SetPoolAumSoftCapUsd'
 import AdrenaSetPoolLiquidityState from './components/instructions/Adrena/SetPoolLiquidityState'
 import AdrenaSetStakingLmEmissionPotentiometers from './components/instructions/Adrena/SetStakingLmEmissionPotentiometers'
+import AdrenaGenesisOtcIn from './components/instructions/Adrena/GenesisOtcIn'
+import AdrenaGenesisOtcOut from './components/instructions/Adrena/GenesisOtcOut'
 import DeactivateValidatorStake from './components/instructions/Validators/DeactivateStake'
 import WithdrawValidatorStake from './components/instructions/Validators/WithdrawStake'
 import DelegateStake from './components/instructions/Validators/DelegateStake'
@@ -487,6 +489,8 @@ const New = () => {
       [Instructions.AdrenaSetPoolAumSoftCapUsd]: AdrenaSetPoolAumSoftCapUsd,
       [Instructions.AdrenaSetPoolLiquidityState]: AdrenaSetPoolLiquidityState,
       [Instructions.AdrenaSetStakingLmEmissionPotentiometers]: AdrenaSetStakingLmEmissionPotentiometers,
+      [Instructions.AdrenaGenesisOtcIn]: AdrenaGenesisOtcIn,
+      [Instructions.AdrenaGenesisOtcOut]: AdrenaGenesisOtcOut,
       [Instructions.Burn]: BurnTokens,
       [Instructions.Transfer]: SplTokenTransfer,
       [Instructions.ProgramUpgrade]: ProgramUpgrade,

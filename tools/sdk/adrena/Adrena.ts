@@ -63,6 +63,13 @@ export default class AdrenaClient {
     )[0]
   }
 
+  public getGenesisLockPda(pool: PublicKey) {
+    return PublicKey.findProgramAddressSync(
+      [Buffer.from('genesis_lock'), pool.toBuffer()],
+      this.programId
+    )[0]
+  }
+
   public getLpTokenMint(poolPda: PublicKey): PublicKey {
     return PublicKey.findProgramAddressSync(
       [Buffer.from('lp_token_mint'), poolPda.toBuffer()],
@@ -83,6 +90,13 @@ export default class AdrenaClient {
   public getUserVestPda(owner: PublicKey): PublicKey {
     return PublicKey.findProgramAddressSync(
       [Buffer.from('vest'), owner.toBuffer()],
+      this.programId
+    )[0]
+  }
+
+  public findCustodyTokenAccountAddress(pool: PublicKey, mint: PublicKey) {
+    return PublicKey.findProgramAddressSync(
+      [Buffer.from('custody_token_account'), pool.toBuffer(), mint.toBuffer()],
       this.programId
     )[0]
   }
