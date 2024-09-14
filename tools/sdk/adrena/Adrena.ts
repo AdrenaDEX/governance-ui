@@ -53,6 +53,9 @@ export default class AdrenaClient {
     this.programId
   )[0]
 
+  public readonly lmTokenMintDecimals = 6
+  public readonly lpTokenMintDecimals = 6
+
   public getPoolPda(poolName: string): PublicKey {
     return PublicKey.findProgramAddressSync(
       [Buffer.from('pool'), Buffer.from(poolName)],
@@ -138,13 +141,17 @@ export default class AdrenaClient {
   public async getCustodies(
     pool: PoolWithPubkey
   ): Promise<CustodyWithPubkey[]> {
+    const custodiesPubkeys = pool.custodies.filter(
+      (custody) => custody.toBase58() !== PublicKey.default.toBase58()
+    )
+
     const custodies = await this.program.account.custody.fetchMultiple(
-      pool.custodies
+      custodiesPubkeys
     )
 
     return custodies.map((custody, index) => ({
       ...custody,
-      pubkey: pool.custodies[index],
+      pubkey: custodiesPubkeys[index],
     })) as CustodyWithPubkey[]
   }
 

@@ -17,7 +17,8 @@ export default function useAdrenaCustodies(
 
       setCustodies(await adrenaClient.getCustodies(pool))
     })()
-  }, [adrenaClient, pool])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [!!adrenaClient, pool?.name ?? null])
 
   return custodies
 }

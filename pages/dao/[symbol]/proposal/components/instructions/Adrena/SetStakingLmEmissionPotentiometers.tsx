@@ -9,16 +9,15 @@ import { serializeInstructionToBase64 } from '@solana/spl-governance'
 import InstructionForm, { InstructionInput } from '../FormCreator'
 import { InstructionInputType } from '../inputInstructionType'
 import { NewProposalContext } from '../../../new'
-import { AssetAccount } from '@utils/uiTypes/assets'
+import { AccountType, AssetAccount } from '@utils/uiTypes/assets'
 import useAdrenaClient from '@hooks/useAdrenaClient'
-import { PublicKey } from '@solana/web3.js'
 import useAdrenaStakings from '@hooks/useAdrenaStakings'
 import { StakingWithPubkey } from '@tools/sdk/adrena/Adrena'
 
 export interface SetStakingLmEmissionPotentiometersForm {
   governedAccount: AssetAccount | null
   lmEmissionPotentiometerBps: number
-  staking: StakingWithPubkey | null
+  staking: { name: string; value: StakingWithPubkey } | null
 }
 
 export default function SetStakingLmEmissionPotentiometers({
@@ -31,6 +30,10 @@ export default function SetStakingLmEmissionPotentiometers({
   const { assetAccounts } = useGovernanceAssets()
   const shouldBeGoverned = !!(index !== 0 && governance)
 
+  const programGovernances = assetAccounts.filter(
+    (x) => x.type === AccountType.PROGRAM
+  )
+
   const [form, setForm] = useState<SetStakingLmEmissionPotentiometersForm>({
     governedAccount: null,
     lmEmissionPotentiometerBps: 0,
@@ -40,10 +43,7 @@ export default function SetStakingLmEmissionPotentiometers({
 
   const { handleSetInstructions } = useContext(NewProposalContext)
 
-  // TODO: load the program owned by the selected governance: form.governedAccount?.governance
-  const adrenaClient = useAdrenaClient(
-    new PublicKey('3wgAScGvh6Wbq42bSDdJru6EemY6HuzKMXuFRs9Naev9')
-  )
+  const adrenaClient = useAdrenaClient(form.governedAccount?.pubkey ?? null)
 
   const stakings = useAdrenaStakings(adrenaClient)
 
@@ -75,7 +75,7 @@ export default function SetStakingLmEmissionPotentiometers({
       .accountsStrict({
         admin: governance.nativeTreasuryAddress,
         cortex: adrenaClient.cortexPda,
-        staking: form.staking.pubkey,
+        staking: form.staking.value.pubkey,
       })
       .instruction()
 
@@ -113,7 +113,7 @@ export default function SetStakingLmEmissionPotentiometers({
       type: InstructionInputType.GOVERNED_ACCOUNT,
       shouldBeGoverned: shouldBeGoverned as any,
       governance,
-      options: assetAccounts,
+      options: programGovernances,
     },
     {
       label: 'LM Emission Potentiometer BPS',

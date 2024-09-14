@@ -11,7 +11,8 @@ export default function useAdrenaPools(adrenaClient: AdrenaClient | null) {
 
       setPools(await adrenaClient.getPools())
     })()
-  }, [adrenaClient])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [!!adrenaClient])
 
   return pools
 }

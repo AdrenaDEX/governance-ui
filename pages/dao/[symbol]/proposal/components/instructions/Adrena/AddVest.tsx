@@ -64,7 +64,6 @@ export default function AddVest({
 
   const { handleSetInstructions } = useContext(NewProposalContext)
 
-  // TODO: load the program owned by the selected governance: form.governedAccount?.governance
   const adrenaClient = useAdrenaClient(form.governedAccount?.pubkey ?? null)
 
   const validateInstruction = async (): Promise<boolean> => {

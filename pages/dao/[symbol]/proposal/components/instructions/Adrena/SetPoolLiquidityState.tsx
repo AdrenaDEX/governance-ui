@@ -9,16 +9,18 @@ import { serializeInstructionToBase64 } from '@solana/spl-governance'
 import InstructionForm, { InstructionInput } from '../FormCreator'
 import { InstructionInputType } from '../inputInstructionType'
 import { NewProposalContext } from '../../../new'
-import { AssetAccount } from '@utils/uiTypes/assets'
+import { AccountType, AssetAccount } from '@utils/uiTypes/assets'
 import { LiquidityState, PoolWithPubkey } from '@tools/sdk/adrena/Adrena'
 import useAdrenaClient from '@hooks/useAdrenaClient'
-import { PublicKey } from '@solana/web3.js'
 import useAdrenaPools from '@hooks/useAdrenaPools'
 
 export interface SetPoolAumSoftCapUsdForm {
   governedAccount: AssetAccount | null
   liquidityState: number
-  pool: PoolWithPubkey | null
+  pool: {
+    name: string
+    value: PoolWithPubkey
+  } | null
 }
 
 export const LIQUIDITY_STATE_VALUES = [
@@ -37,6 +39,10 @@ export default function SetPoolLiquidityState({
   const { assetAccounts } = useGovernanceAssets()
   const shouldBeGoverned = !!(index !== 0 && governance)
 
+  const programGovernances = assetAccounts.filter(
+    (x) => x.type === AccountType.PROGRAM
+  )
+
   const [form, setForm] = useState<SetPoolAumSoftCapUsdForm>({
     governedAccount: null,
     liquidityState: LIQUIDITY_STATE_VALUES[2].value, // Default is Active
@@ -46,10 +52,7 @@ export default function SetPoolLiquidityState({
 
   const { handleSetInstructions } = useContext(NewProposalContext)
 
-  // TODO: load the program owned by the selected governance: form.governedAccount?.governance
-  const adrenaClient = useAdrenaClient(
-    new PublicKey('3wgAScGvh6Wbq42bSDdJru6EemY6HuzKMXuFRs9Naev9')
-  )
+  const adrenaClient = useAdrenaClient(form.governedAccount?.pubkey ?? null)
 
   const pools = useAdrenaPools(adrenaClient)
 
@@ -81,7 +84,7 @@ export default function SetPoolLiquidityState({
       .accountsStrict({
         admin: governance.nativeTreasuryAddress,
         cortex: adrenaClient.cortexPda,
-        pool: form.pool.pubkey,
+        pool: form.pool.value.pubkey,
       })
       .instruction()
 
@@ -117,7 +120,7 @@ export default function SetPoolLiquidityState({
       type: InstructionInputType.GOVERNED_ACCOUNT,
       shouldBeGoverned: shouldBeGoverned as any,
       governance,
-      options: assetAccounts,
+      options: programGovernances,
     },
     {
       label: 'Pool',
@@ -126,7 +129,7 @@ export default function SetPoolLiquidityState({
       name: 'pool',
       options:
         pools?.map((p) => ({
-          name: p.name.value.toString(),
+          name: String.fromCharCode(...p.name.value),
           value: p,
         })) ?? [],
     },

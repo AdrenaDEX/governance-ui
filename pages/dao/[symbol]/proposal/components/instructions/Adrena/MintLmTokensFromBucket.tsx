@@ -9,26 +9,28 @@ import { serializeInstructionToBase64 } from '@solana/spl-governance'
 import InstructionForm, { InstructionInput } from '../FormCreator'
 import { InstructionInputType } from '../inputInstructionType'
 import { NewProposalContext } from '../../../new'
-import { AssetAccount } from '@utils/uiTypes/assets'
+import { AccountType, AssetAccount } from '@utils/uiTypes/assets'
 import { getMintNaturalAmountFromDecimalAsBN } from '@tools/sdk/units'
 import { OriginBucket } from '@tools/sdk/adrena/Adrena'
 import { TOKEN_PROGRAM_ID } from '@solana/spl-token'
 import { findATAAddrSync } from '@utils/ataTools'
-import { PublicKey } from '@solana/web3.js'
+import { PublicKey, TransactionInstruction } from '@solana/web3.js'
 import useAdrenaClient from '@hooks/useAdrenaClient'
+import useLegacyConnectionContext from '@hooks/useLegacyConnectionContext'
+import { createAssociatedTokenAccountIdempotentInstruction } from '@blockworks-foundation/mango-v4'
+import useWalletOnePointOh from '@hooks/useWalletOnePointOh'
 
 export interface MintLmTokensFromBucketForm {
   governedAccount: AssetAccount | null
   owner: string
-  originBucket: number
+  originBucket: { name: string; value: OriginBucket }
   amount: number
   reason: string
 }
 
 export const ORIGIN_BUCKET_VALUES = [
   { name: 'Core Contributor', value: OriginBucket.CoreContributor },
-  { name: 'Dao Treasury', value: OriginBucket.DaoTreasury },
-  { name: 'PoL', value: OriginBucket.PoL },
+  { name: 'Foundation', value: OriginBucket.Foundation },
   { name: 'Ecosystem', value: OriginBucket.Ecosystem },
 ]
 
@@ -42,10 +44,14 @@ export default function MintLmTokensFromBucket({
   const { assetAccounts } = useGovernanceAssets()
   const shouldBeGoverned = !!(index !== 0 && governance)
 
+  const programGovernances = assetAccounts.filter(
+    (x) => x.type === AccountType.PROGRAM
+  )
+
   const [form, setForm] = useState<MintLmTokensFromBucketForm>({
     governedAccount: null,
     owner: '',
-    originBucket: ORIGIN_BUCKET_VALUES[3].value, // Ecosystem as default
+    originBucket: ORIGIN_BUCKET_VALUES[3], // Ecosystem as default
     amount: 0,
     reason: '',
   })
@@ -53,10 +59,10 @@ export default function MintLmTokensFromBucket({
 
   const { handleSetInstructions } = useContext(NewProposalContext)
 
-  // TODO: load the program owned by the selected governance: form.governedAccount?.governance
-  const adrenaClient = useAdrenaClient(
-    new PublicKey('3wgAScGvh6Wbq42bSDdJru6EemY6HuzKMXuFRs9Naev9')
-  )
+  const connection = useLegacyConnectionContext()
+  const wallet = useWalletOnePointOh()
+
+  const adrenaClient = useAdrenaClient(form.governedAccount?.pubkey ?? null)
 
   const validateInstruction = async (): Promise<boolean> => {
     const { isValid, validationErrors } = await isFormValid(schema, form)
@@ -70,7 +76,7 @@ export default function MintLmTokensFromBucket({
     const isValid = await validateInstruction()
     const governance = form.governedAccount?.governance
 
-    if (!isValid || !governance || !adrenaClient) {
+    if (!isValid || !governance || !adrenaClient || !wallet?.publicKey) {
       return {
         serializedInstruction: '',
         isValid,
@@ -83,10 +89,25 @@ export default function MintLmTokensFromBucket({
 
     const receivingAccount = findATAAddrSync(owner, adrenaClient.lmTokenMint)[0]
 
+    const preInstructions: TransactionInstruction[] = []
+
+    if (!(await connection.current.getAccountInfo(receivingAccount))) {
+      preInstructions.push(
+        await createAssociatedTokenAccountIdempotentInstruction(
+          wallet.publicKey,
+          owner,
+          adrenaClient.lmTokenMint
+        )
+      )
+    }
+
     const instruction = await adrenaClient.program.methods
       .mintLmTokensFromBucket({
-        bucketName: form.originBucket,
-        amount: getMintNaturalAmountFromDecimalAsBN(form.amount, 9),
+        bucketName: form.originBucket.value,
+        amount: getMintNaturalAmountFromDecimalAsBN(
+          form.amount,
+          adrenaClient.lmTokenMintDecimals
+        ),
         reason: form.reason,
       })
       .accountsStrict({
@@ -101,6 +122,7 @@ export default function MintLmTokensFromBucket({
 
     return {
       serializedInstruction: serializeInstructionToBase64(instruction),
+      prerequisiteInstructions: preInstructions,
       isValid,
       governance,
       chunkBy: 1,
@@ -121,7 +143,6 @@ export default function MintLmTokensFromBucket({
       .nullable()
       .required('Program governed account is required'),
     owner: yup.string().required('Owner is required'),
-    originBucket: yup.number().required('Origin bucket is required'),
     amount: yup.number().required('Token amount is required'),
     reason: yup.string().required('Reason is required'),
   })
@@ -134,7 +155,7 @@ export default function MintLmTokensFromBucket({
       type: InstructionInputType.GOVERNED_ACCOUNT,
       shouldBeGoverned: shouldBeGoverned as any,
       governance,
-      options: assetAccounts,
+      options: programGovernances,
     },
     {
       label: 'Owner',
