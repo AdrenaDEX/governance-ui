@@ -4,9 +4,8 @@ import { AnchorProvider, IdlAccounts, Program } from '@coral-xyz/anchor'
 
 export enum OriginBucket {
   CoreContributor = 0,
-  DaoTreasury = 1,
-  PoL = 2,
-  Ecosystem = 3,
+  Foundation = 1,
+  Ecosystem = 2,
 }
 
 export enum LiquidityState {

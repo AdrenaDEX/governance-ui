@@ -46,7 +46,7 @@ export default function SetCustodyMaxCumulativeShortSizeUsd({
 
   // TODO: load the program owned by the selected governance: form.governedAccount?.governance
   const adrenaClient = useAdrenaClient(
-    new PublicKey('3UT4rMBgSTi6NPHVYKM5AxaWgrkGNJeFQED8NK86axk3')
+    new PublicKey('3wgAScGvh6Wbq42bSDdJru6EemY6HuzKMXuFRs9Naev9')
   )
 
   const pools = useAdrenaPools(adrenaClient)

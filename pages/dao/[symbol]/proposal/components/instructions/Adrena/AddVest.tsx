@@ -9,7 +9,7 @@ import { serializeInstructionToBase64 } from '@solana/spl-governance'
 import InstructionForm, { InstructionInput } from '../FormCreator'
 import { InstructionInputType } from '../inputInstructionType'
 import { NewProposalContext } from '../../../new'
-import { AssetAccount } from '@utils/uiTypes/assets'
+import { AccountType, AssetAccount } from '@utils/uiTypes/assets'
 import { BN } from '@coral-xyz/anchor'
 import { PublicKey, SYSVAR_RENT_PUBKEY, SystemProgram } from '@solana/web3.js'
 import { TOKEN_PROGRAM_ID } from '@solana/spl-token'
@@ -21,8 +21,7 @@ import useAdrenaClient from '@hooks/useAdrenaClient'
 
 export const ORIGIN_BUCKET_VALUES = [
   { name: 'Core Contributor', value: OriginBucket.CoreContributor },
-  { name: 'Dao Treasury', value: OriginBucket.DaoTreasury },
-  { name: 'PoL', value: OriginBucket.PoL },
+  { name: 'Foundation', value: OriginBucket.Foundation },
   { name: 'Ecosystem', value: OriginBucket.Ecosystem },
 ]
 
@@ -30,7 +29,7 @@ export interface AddVestForm {
   governedAccount: AssetAccount | null
   owner: string
   amount: number
-  originBucket: number
+  originBucket: { name: string; value: OriginBucket }
   unlockStartTimestamp: number
   unlockEndTimestamp: number
   voteMultiplier: number
@@ -47,11 +46,15 @@ export default function AddVest({
   const { assetAccounts } = useGovernanceAssets()
   const shouldBeGoverned = !!(index !== 0 && governance)
 
+  const programGovernances = assetAccounts.filter(
+    (x) => x.type === AccountType.PROGRAM
+  )
+
   const [form, setForm] = useState<AddVestForm>({
     governedAccount: null,
     owner: '',
     amount: 0,
-    originBucket: ORIGIN_BUCKET_VALUES[3].value, // Ecosystem as default
+    originBucket: ORIGIN_BUCKET_VALUES[2], // Ecosystem as default
     unlockStartTimestamp: 0,
     unlockEndTimestamp: 0,
     voteMultiplier: 0,
@@ -62,9 +65,7 @@ export default function AddVest({
   const { handleSetInstructions } = useContext(NewProposalContext)
 
   // TODO: load the program owned by the selected governance: form.governedAccount?.governance
-  const adrenaClient = useAdrenaClient(
-    new PublicKey('3UT4rMBgSTi6NPHVYKM5AxaWgrkGNJeFQED8NK86axk3')
-  )
+  const adrenaClient = useAdrenaClient(form.governedAccount?.pubkey ?? null)
 
   const validateInstruction = async (): Promise<boolean> => {
     const { isValid, validationErrors } = await isFormValid(schema, form)
@@ -77,8 +78,15 @@ export default function AddVest({
   async function getInstruction(): Promise<UiInstruction> {
     const isValid = await validateInstruction()
     const governance = form.governedAccount?.governance
+    const adrenaProgramId = form.governedAccount?.pubkey
 
-    if (!isValid || !governance || !adrenaClient || !wallet?.publicKey) {
+    if (
+      !isValid ||
+      !governance ||
+      !adrenaClient ||
+      !wallet?.publicKey ||
+      !adrenaProgramId
+    ) {
       return {
         serializedInstruction: '',
         isValid,
@@ -93,7 +101,7 @@ export default function AddVest({
     const instruction = await adrenaClient.program.methods
       .addVest({
         amount: getMintNaturalAmountFromDecimalAsBN(form.amount, 9),
-        originBucket: form.originBucket,
+        originBucket: form.originBucket.value,
         unlockStartTimestamp: new BN(form.unlockStartTimestamp),
         unlockEndTimestamp: new BN(form.unlockEndTimestamp),
         voteMultiplier: Math.floor(form.voteMultiplier * 10000),
@@ -148,7 +156,6 @@ export default function AddVest({
       .nullable()
       .required('Program governed account is required'),
     owner: yup.string().required('Owner is required'),
-    originBucket: yup.number().required('Origin bucket is required'),
     amount: yup.number().required('Token amount is required'),
     unlockStartTimestamp: yup
       .number()
@@ -167,7 +174,7 @@ export default function AddVest({
       type: InstructionInputType.GOVERNED_ACCOUNT,
       shouldBeGoverned: shouldBeGoverned as any,
       governance,
-      options: assetAccounts,
+      options: programGovernances,
     },
     {
       label: 'Owner',
@@ -209,7 +216,7 @@ export default function AddVest({
       initialValue: form.voteMultiplier,
       type: InstructionInputType.INPUT,
       inputType: 'number',
-      name: 'unlockEndTimestamp',
+      name: 'voteMultiplier',
     },
   ]
 
