@@ -70,7 +70,7 @@ export default function GenesisOtcOut({
     return isValid
   }
 
-  async function getInstruction(): Promise<UiInstruction> {
+  const getInstruction = async (): Promise<UiInstruction> => {
     const isValid = await validateInstruction()
     const governance = form.governedAccount?.governance
 
@@ -144,7 +144,7 @@ export default function GenesisOtcOut({
       index
     )
     // eslint-disable-next-line react-hooks/exhaustive-deps -- TODO please fix, it can cause difficult bugs. You might wanna check out https://bobbyhadz.com/blog/react-hooks-exhaustive-deps for info. -@asktree
-  }, [form])
+  }, [form, custodies, pools])
 
   const schema = yup.object().shape({
     governedAccount: yup

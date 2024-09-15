@@ -16,7 +16,7 @@ import useAdrenaPools from '@hooks/useAdrenaPools'
 
 export interface SetPoolAumSoftCapUsdForm {
   governedAccount: AssetAccount | null
-  liquidityState: number
+  liquidityState: { name: string; value: number }
   pool: {
     name: string
     value: PoolWithPubkey
@@ -45,7 +45,7 @@ export default function SetPoolLiquidityState({
 
   const [form, setForm] = useState<SetPoolAumSoftCapUsdForm>({
     governedAccount: null,
-    liquidityState: LIQUIDITY_STATE_VALUES[2].value, // Default is Active
+    liquidityState: LIQUIDITY_STATE_VALUES[2], // Default is Active
     pool: null,
   })
   const [formErrors, setFormErrors] = useState({})
@@ -79,7 +79,7 @@ export default function SetPoolLiquidityState({
 
     const instruction = await adrenaClient.program.methods
       .setPoolLiquidityState({
-        liquidityState: form.liquidityState,
+        liquidityState: form.liquidityState.value,
       })
       .accountsStrict({
         admin: governance.nativeTreasuryAddress,
@@ -109,7 +109,6 @@ export default function SetPoolLiquidityState({
       .object()
       .nullable()
       .required('Program governed account is required'),
-    liquidityState: yup.number().required('Liquidity state is required'),
   })
 
   const inputs: InstructionInput[] = [

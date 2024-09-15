@@ -13,7 +13,9 @@ export default function useAdrenaCustodies(
 
   useEffect(() => {
     ;(async () => {
-      if (adrenaClient === null || pool === null) return setCustodies(null)
+      if (adrenaClient === null || pool === null) {
+        return setCustodies(null)
+      }
 
       setCustodies(await adrenaClient.getCustodies(pool))
     })()

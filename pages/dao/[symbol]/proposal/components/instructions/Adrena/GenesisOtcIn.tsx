@@ -162,7 +162,7 @@ export default function GenesisOtcIn({
       index
     )
     // eslint-disable-next-line react-hooks/exhaustive-deps -- TODO please fix, it can cause difficult bugs. You might wanna check out https://bobbyhadz.com/blog/react-hooks-exhaustive-deps for info. -@asktree
-  }, [form])
+  }, [form, pools, custodies])
 
   const schema = yup.object().shape({
     governedAccount: yup
@@ -202,7 +202,28 @@ export default function GenesisOtcIn({
     const admin = form.governedAccount?.governance?.nativeTreasuryAddress
 
     if (!pool || !custodies || !custodies.length || !adrenaClient || !admin) {
-      setInputs(inputs.slice(0, 2))
+      setInputs([
+        {
+          label: 'Governance',
+          initialValue: form.governedAccount,
+          name: 'governedAccount',
+          type: InstructionInputType.GOVERNED_ACCOUNT,
+          shouldBeGoverned: shouldBeGoverned as any,
+          governance,
+          options: programGovernances,
+        },
+        {
+          label: 'Pool',
+          initialValue: form.pool,
+          type: InstructionInputType.SELECT,
+          name: 'pool',
+          options:
+            pools?.map((p) => ({
+              name: String.fromCharCode(...p.name.value),
+              value: p,
+            })) ?? [],
+        },
+      ])
       return
     }
 
@@ -218,7 +239,28 @@ export default function GenesisOtcIn({
 
     // Not enough custodies
     if (!custodyOneAccount || !custodyTwoAccount || !custodyThreeAccount) {
-      setInputs(inputs.slice(0, 2))
+      setInputs([
+        {
+          label: 'Governance',
+          initialValue: form.governedAccount,
+          name: 'governedAccount',
+          type: InstructionInputType.GOVERNED_ACCOUNT,
+          shouldBeGoverned: shouldBeGoverned as any,
+          governance,
+          options: programGovernances,
+        },
+        {
+          label: 'Pool',
+          initialValue: form.pool,
+          type: InstructionInputType.SELECT,
+          name: 'pool',
+          options:
+            pools?.map((p) => ({
+              name: String.fromCharCode(...p.name.value),
+              value: p,
+            })) ?? [],
+        },
+      ])
       return
     }
 
@@ -251,7 +293,26 @@ export default function GenesisOtcIn({
 
     // When the pool is selected and the custodies are fetched, add the custody inputs
     setInputs([
-      ...inputs,
+      {
+        label: 'Governance',
+        initialValue: form.governedAccount,
+        name: 'governedAccount',
+        type: InstructionInputType.GOVERNED_ACCOUNT,
+        shouldBeGoverned: shouldBeGoverned as any,
+        governance,
+        options: programGovernances,
+      },
+      {
+        label: 'Pool',
+        initialValue: form.pool,
+        type: InstructionInputType.SELECT,
+        name: 'pool',
+        options:
+          pools?.map((p) => ({
+            name: String.fromCharCode(...p.name.value),
+            value: p,
+          })) ?? [],
+      },
       {
         label: `${custodyOneAccount.mint
           .toBase58()
@@ -282,6 +343,10 @@ export default function GenesisOtcIn({
     ])
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    !!custodiesOneTwoThree,
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    !!pools,
     // eslint-disable-next-line react-hooks/exhaustive-deps
     form.pool?.value.pubkey.toBase58(),
     // eslint-disable-next-line react-hooks/exhaustive-deps
