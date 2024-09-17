@@ -3648,12 +3648,12 @@
     "telegram": "https://t.me/+mlW159EpFtY1N2U0D"
   },
   {
-    "symbol": "AdrenaTest",
-    "displayName": "AdrenaTest",
+    "symbol": "AdrenaDAO",
+    "displayName": "Adrena DAO",
     "category": "defi",
     "bannerImage": "/realms/Adrena/banner.png",
     "programId": "GovER5Lthms3bLBqWub97yVrMmEogzX7xNjdXpPPCVZw",
-    "realmId": "65M6EkpcQ5bXfJBhkmgNT3gUTB2YtW5tmBbsDEP6Gfcj",
+    "realmId": "GWe1VYTRMujAtGVhSLwSn4YPsXBLe5qfkzNAYAKD44Nk",
     "ogImage": "/realms/Adrena/logo.png",
     "shortDescription": "Perpetuals DEX for the Solana community.",
     "website": "https://app.adrena.xyz/",
