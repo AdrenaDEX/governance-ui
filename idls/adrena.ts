@@ -654,167 +654,6 @@ export type Adrena = {
       "returns": "u64"
     },
     {
-      "name": "cancelVest",
-      "accounts": [
-        {
-          "name": "admin",
-          "isMut": false,
-          "isSigner": true,
-          "docs": [
-            "#1"
-          ]
-        },
-        {
-          "name": "owner",
-          "isMut": true,
-          "isSigner": false,
-          "docs": [
-            "#2"
-          ]
-        },
-        {
-          "name": "payer",
-          "isMut": true,
-          "isSigner": true,
-          "docs": [
-            "#3"
-          ]
-        },
-        {
-          "name": "receivingAccount",
-          "isMut": true,
-          "isSigner": false,
-          "docs": [
-            "#4"
-          ]
-        },
-        {
-          "name": "transferAuthority",
-          "isMut": false,
-          "isSigner": false,
-          "docs": [
-            "#5"
-          ]
-        },
-        {
-          "name": "cortex",
-          "isMut": true,
-          "isSigner": false,
-          "docs": [
-            "#6"
-          ]
-        },
-        {
-          "name": "vestRegistry",
-          "isMut": true,
-          "isSigner": false,
-          "docs": [
-            "#7"
-          ]
-        },
-        {
-          "name": "vest",
-          "isMut": true,
-          "isSigner": false,
-          "docs": [
-            "#8"
-          ]
-        },
-        {
-          "name": "lmTokenMint",
-          "isMut": true,
-          "isSigner": false,
-          "docs": [
-            "#9"
-          ]
-        },
-        {
-          "name": "governanceTokenMint",
-          "isMut": true,
-          "isSigner": false,
-          "docs": [
-            "#10"
-          ]
-        },
-        {
-          "name": "governanceRealm",
-          "isMut": false,
-          "isSigner": false,
-          "docs": [
-            "#11",
-            "A realm represent one project (ADRENA, MANGO etc.) within the governance program"
-          ]
-        },
-        {
-          "name": "governanceRealmConfig",
-          "isMut": false,
-          "isSigner": false,
-          "docs": [
-            "#12"
-          ]
-        },
-        {
-          "name": "governanceGoverningTokenHolding",
-          "isMut": true,
-          "isSigner": false,
-          "docs": [
-            "#13",
-            "Token account owned by governance program holding user's locked tokens"
-          ]
-        },
-        {
-          "name": "governanceGoverningTokenOwnerRecord",
-          "isMut": true,
-          "isSigner": false,
-          "docs": [
-            "#14",
-            "Account owned by governance storing user information"
-          ]
-        },
-        {
-          "name": "governanceProgram",
-          "isMut": false,
-          "isSigner": false,
-          "docs": [
-            "#15"
-          ]
-        },
-        {
-          "name": "adrenaProgram",
-          "isMut": false,
-          "isSigner": false,
-          "docs": [
-            "#16"
-          ]
-        },
-        {
-          "name": "systemProgram",
-          "isMut": false,
-          "isSigner": false,
-          "docs": [
-            "#17"
-          ]
-        },
-        {
-          "name": "tokenProgram",
-          "isMut": false,
-          "isSigner": false,
-          "docs": [
-            "#18"
-          ]
-        },
-        {
-          "name": "rent",
-          "isMut": false,
-          "isSigner": false,
-          "docs": [
-            "#19"
-          ]
-        }
-      ],
-      "args": []
-    },
-    {
       "name": "addPoolPartOne",
       "accounts": [
         {
@@ -1544,131 +1383,6 @@ export type Adrena = {
           "name": "params",
           "type": {
             "defined": "SetPoolAumSoftCapUsdParams"
-          }
-        }
-      ]
-    },
-    {
-      "name": "testAdminRemoveCollateral",
-      "accounts": [
-        {
-          "name": "admin",
-          "isMut": false,
-          "isSigner": true,
-          "docs": [
-            "#1"
-          ]
-        },
-        {
-          "name": "owner",
-          "isMut": false,
-          "isSigner": false,
-          "docs": [
-            "#2"
-          ]
-        },
-        {
-          "name": "receivingAccount",
-          "isMut": true,
-          "isSigner": false,
-          "docs": [
-            "#3"
-          ]
-        },
-        {
-          "name": "transferAuthority",
-          "isMut": false,
-          "isSigner": false,
-          "docs": [
-            "#4"
-          ]
-        },
-        {
-          "name": "cortex",
-          "isMut": true,
-          "isSigner": false,
-          "docs": [
-            "#5"
-          ]
-        },
-        {
-          "name": "pool",
-          "isMut": true,
-          "isSigner": false,
-          "docs": [
-            "#6"
-          ]
-        },
-        {
-          "name": "position",
-          "isMut": true,
-          "isSigner": false,
-          "docs": [
-            "#7"
-          ]
-        },
-        {
-          "name": "custody",
-          "isMut": true,
-          "isSigner": false,
-          "docs": [
-            "#8"
-          ]
-        },
-        {
-          "name": "custodyOracle",
-          "isMut": false,
-          "isSigner": false,
-          "docs": [
-            "#9"
-          ]
-        },
-        {
-          "name": "collateralCustody",
-          "isMut": true,
-          "isSigner": false,
-          "docs": [
-            "#10"
-          ]
-        },
-        {
-          "name": "collateralCustodyOracle",
-          "isMut": false,
-          "isSigner": false,
-          "docs": [
-            "#11"
-          ]
-        },
-        {
-          "name": "collateralCustodyTokenAccount",
-          "isMut": true,
-          "isSigner": false,
-          "docs": [
-            "#12"
-          ]
-        },
-        {
-          "name": "adrenaProgram",
-          "isMut": false,
-          "isSigner": false,
-          "docs": [
-            "#13"
-          ]
-        },
-        {
-          "name": "tokenProgram",
-          "isMut": false,
-          "isSigner": false,
-          "docs": [
-            "#14"
-          ]
-        }
-      ],
-      "args": [
-        {
-          "name": "params",
-          "type": {
-            "defined": "TestAdminRemoveCollateralParams"
           }
         }
       ]
@@ -8030,6 +7744,44 @@ export type Adrena = {
       ]
     },
     {
+      "name": "setProtocolFeeRecipient",
+      "accounts": [
+        {
+          "name": "admin",
+          "isMut": false,
+          "isSigner": true,
+          "docs": [
+            "#1"
+          ]
+        },
+        {
+          "name": "cortex",
+          "isMut": true,
+          "isSigner": false,
+          "docs": [
+            "#2"
+          ]
+        },
+        {
+          "name": "protocolFeeRecipient",
+          "isMut": false,
+          "isSigner": false,
+          "docs": [
+            "#3"
+          ]
+        },
+        {
+          "name": "feeRedistributionMint",
+          "isMut": false,
+          "isSigner": false,
+          "docs": [
+            "#4"
+          ]
+        }
+      ],
+      "args": []
+    },
+    {
       "name": "setCustodyMaxCumulativeShortPositionSizeUsd",
       "accounts": [
         {
@@ -9420,7 +9172,7 @@ export type Adrena = {
             "type": {
               "array": [
                 "publicKey",
-                30
+                41
               ]
             }
           },
@@ -9429,7 +9181,7 @@ export type Adrena = {
             "type": {
               "array": [
                 "u64",
-                30
+                41
               ]
             }
           },
@@ -10321,13 +10073,29 @@ export type Adrena = {
       }
     },
     {
-      "name": "TestAdminRemoveCollateralParams",
+      "name": "AddVestParams",
       "type": {
         "kind": "struct",
         "fields": [
           {
-            "name": "collateralUsd",
+            "name": "amount",
             "type": "u64"
+          },
+          {
+            "name": "originBucket",
+            "type": "u8"
+          },
+          {
+            "name": "unlockStartTimestamp",
+            "type": "i64"
+          },
+          {
+            "name": "unlockEndTimestamp",
+            "type": "i64"
+          },
+          {
+            "name": "voteMultiplier",
+            "type": "u32"
           }
         ]
       }
@@ -10759,34 +10527,6 @@ export type Adrena = {
       }
     },
     {
-      "name": "AddVestParams",
-      "type": {
-        "kind": "struct",
-        "fields": [
-          {
-            "name": "amount",
-            "type": "u64"
-          },
-          {
-            "name": "originBucket",
-            "type": "u8"
-          },
-          {
-            "name": "unlockStartTimestamp",
-            "type": "i64"
-          },
-          {
-            "name": "unlockEndTimestamp",
-            "type": "i64"
-          },
-          {
-            "name": "voteMultiplier",
-            "type": "u32"
-          }
-        ]
-      }
-    },
-    {
       "name": "GetAddLiquidityAmountAndFeeParams",
       "type": {
         "kind": "struct",
@@ -11079,15 +10819,11 @@ export type Adrena = {
             "type": "u16"
           },
           {
-            "name": "protocolShare",
-            "type": "u16"
-          },
-          {
             "name": "padding",
             "type": {
               "array": [
                 "u8",
-                4
+                6
               ]
             }
           },
@@ -13080,167 +12816,6 @@ export const IDL: Adrena = {
       "returns": "u64"
     },
     {
-      "name": "cancelVest",
-      "accounts": [
-        {
-          "name": "admin",
-          "isMut": false,
-          "isSigner": true,
-          "docs": [
-            "#1"
-          ]
-        },
-        {
-          "name": "owner",
-          "isMut": true,
-          "isSigner": false,
-          "docs": [
-            "#2"
-          ]
-        },
-        {
-          "name": "payer",
-          "isMut": true,
-          "isSigner": true,
-          "docs": [
-            "#3"
-          ]
-        },
-        {
-          "name": "receivingAccount",
-          "isMut": true,
-          "isSigner": false,
-          "docs": [
-            "#4"
-          ]
-        },
-        {
-          "name": "transferAuthority",
-          "isMut": false,
-          "isSigner": false,
-          "docs": [
-            "#5"
-          ]
-        },
-        {
-          "name": "cortex",
-          "isMut": true,
-          "isSigner": false,
-          "docs": [
-            "#6"
-          ]
-        },
-        {
-          "name": "vestRegistry",
-          "isMut": true,
-          "isSigner": false,
-          "docs": [
-            "#7"
-          ]
-        },
-        {
-          "name": "vest",
-          "isMut": true,
-          "isSigner": false,
-          "docs": [
-            "#8"
-          ]
-        },
-        {
-          "name": "lmTokenMint",
-          "isMut": true,
-          "isSigner": false,
-          "docs": [
-            "#9"
-          ]
-        },
-        {
-          "name": "governanceTokenMint",
-          "isMut": true,
-          "isSigner": false,
-          "docs": [
-            "#10"
-          ]
-        },
-        {
-          "name": "governanceRealm",
-          "isMut": false,
-          "isSigner": false,
-          "docs": [
-            "#11",
-            "A realm represent one project (ADRENA, MANGO etc.) within the governance program"
-          ]
-        },
-        {
-          "name": "governanceRealmConfig",
-          "isMut": false,
-          "isSigner": false,
-          "docs": [
-            "#12"
-          ]
-        },
-        {
-          "name": "governanceGoverningTokenHolding",
-          "isMut": true,
-          "isSigner": false,
-          "docs": [
-            "#13",
-            "Token account owned by governance program holding user's locked tokens"
-          ]
-        },
-        {
-          "name": "governanceGoverningTokenOwnerRecord",
-          "isMut": true,
-          "isSigner": false,
-          "docs": [
-            "#14",
-            "Account owned by governance storing user information"
-          ]
-        },
-        {
-          "name": "governanceProgram",
-          "isMut": false,
-          "isSigner": false,
-          "docs": [
-            "#15"
-          ]
-        },
-        {
-          "name": "adrenaProgram",
-          "isMut": false,
-          "isSigner": false,
-          "docs": [
-            "#16"
-          ]
-        },
-        {
-          "name": "systemProgram",
-          "isMut": false,
-          "isSigner": false,
-          "docs": [
-            "#17"
-          ]
-        },
-        {
-          "name": "tokenProgram",
-          "isMut": false,
-          "isSigner": false,
-          "docs": [
-            "#18"
-          ]
-        },
-        {
-          "name": "rent",
-          "isMut": false,
-          "isSigner": false,
-          "docs": [
-            "#19"
-          ]
-        }
-      ],
-      "args": []
-    },
-    {
       "name": "addPoolPartOne",
       "accounts": [
         {
@@ -13970,131 +13545,6 @@ export const IDL: Adrena = {
           "name": "params",
           "type": {
             "defined": "SetPoolAumSoftCapUsdParams"
-          }
-        }
-      ]
-    },
-    {
-      "name": "testAdminRemoveCollateral",
-      "accounts": [
-        {
-          "name": "admin",
-          "isMut": false,
-          "isSigner": true,
-          "docs": [
-            "#1"
-          ]
-        },
-        {
-          "name": "owner",
-          "isMut": false,
-          "isSigner": false,
-          "docs": [
-            "#2"
-          ]
-        },
-        {
-          "name": "receivingAccount",
-          "isMut": true,
-          "isSigner": false,
-          "docs": [
-            "#3"
-          ]
-        },
-        {
-          "name": "transferAuthority",
-          "isMut": false,
-          "isSigner": false,
-          "docs": [
-            "#4"
-          ]
-        },
-        {
-          "name": "cortex",
-          "isMut": true,
-          "isSigner": false,
-          "docs": [
-            "#5"
-          ]
-        },
-        {
-          "name": "pool",
-          "isMut": true,
-          "isSigner": false,
-          "docs": [
-            "#6"
-          ]
-        },
-        {
-          "name": "position",
-          "isMut": true,
-          "isSigner": false,
-          "docs": [
-            "#7"
-          ]
-        },
-        {
-          "name": "custody",
-          "isMut": true,
-          "isSigner": false,
-          "docs": [
-            "#8"
-          ]
-        },
-        {
-          "name": "custodyOracle",
-          "isMut": false,
-          "isSigner": false,
-          "docs": [
-            "#9"
-          ]
-        },
-        {
-          "name": "collateralCustody",
-          "isMut": true,
-          "isSigner": false,
-          "docs": [
-            "#10"
-          ]
-        },
-        {
-          "name": "collateralCustodyOracle",
-          "isMut": false,
-          "isSigner": false,
-          "docs": [
-            "#11"
-          ]
-        },
-        {
-          "name": "collateralCustodyTokenAccount",
-          "isMut": true,
-          "isSigner": false,
-          "docs": [
-            "#12"
-          ]
-        },
-        {
-          "name": "adrenaProgram",
-          "isMut": false,
-          "isSigner": false,
-          "docs": [
-            "#13"
-          ]
-        },
-        {
-          "name": "tokenProgram",
-          "isMut": false,
-          "isSigner": false,
-          "docs": [
-            "#14"
-          ]
-        }
-      ],
-      "args": [
-        {
-          "name": "params",
-          "type": {
-            "defined": "TestAdminRemoveCollateralParams"
           }
         }
       ]
@@ -20456,6 +19906,44 @@ export const IDL: Adrena = {
       ]
     },
     {
+      "name": "setProtocolFeeRecipient",
+      "accounts": [
+        {
+          "name": "admin",
+          "isMut": false,
+          "isSigner": true,
+          "docs": [
+            "#1"
+          ]
+        },
+        {
+          "name": "cortex",
+          "isMut": true,
+          "isSigner": false,
+          "docs": [
+            "#2"
+          ]
+        },
+        {
+          "name": "protocolFeeRecipient",
+          "isMut": false,
+          "isSigner": false,
+          "docs": [
+            "#3"
+          ]
+        },
+        {
+          "name": "feeRedistributionMint",
+          "isMut": false,
+          "isSigner": false,
+          "docs": [
+            "#4"
+          ]
+        }
+      ],
+      "args": []
+    },
+    {
       "name": "setCustodyMaxCumulativeShortPositionSizeUsd",
       "accounts": [
         {
@@ -21846,7 +21334,7 @@ export const IDL: Adrena = {
             "type": {
               "array": [
                 "publicKey",
-                30
+                41
               ]
             }
           },
@@ -21855,7 +21343,7 @@ export const IDL: Adrena = {
             "type": {
               "array": [
                 "u64",
-                30
+                41
               ]
             }
           },
@@ -22747,13 +22235,29 @@ export const IDL: Adrena = {
       }
     },
     {
-      "name": "TestAdminRemoveCollateralParams",
+      "name": "AddVestParams",
       "type": {
         "kind": "struct",
         "fields": [
           {
-            "name": "collateralUsd",
+            "name": "amount",
             "type": "u64"
+          },
+          {
+            "name": "originBucket",
+            "type": "u8"
+          },
+          {
+            "name": "unlockStartTimestamp",
+            "type": "i64"
+          },
+          {
+            "name": "unlockEndTimestamp",
+            "type": "i64"
+          },
+          {
+            "name": "voteMultiplier",
+            "type": "u32"
           }
         ]
       }
@@ -23185,34 +22689,6 @@ export const IDL: Adrena = {
       }
     },
     {
-      "name": "AddVestParams",
-      "type": {
-        "kind": "struct",
-        "fields": [
-          {
-            "name": "amount",
-            "type": "u64"
-          },
-          {
-            "name": "originBucket",
-            "type": "u8"
-          },
-          {
-            "name": "unlockStartTimestamp",
-            "type": "i64"
-          },
-          {
-            "name": "unlockEndTimestamp",
-            "type": "i64"
-          },
-          {
-            "name": "voteMultiplier",
-            "type": "u32"
-          }
-        ]
-      }
-    },
-    {
       "name": "GetAddLiquidityAmountAndFeeParams",
       "type": {
         "kind": "struct",
@@ -23505,15 +22981,11 @@ export const IDL: Adrena = {
             "type": "u16"
           },
           {
-            "name": "protocolShare",
-            "type": "u16"
-          },
-          {
             "name": "padding",
             "type": {
               "array": [
                 "u8",
-                4
+                6
               ]
             }
           },

@@ -308,6 +308,7 @@ export enum Instructions {
   AdrenaSetStakingLmEmissionPotentiometers,
   AdrenaGenesisOtcIn,
   AdrenaGenesisOtcOut,
+  AdrenaSetProtocolFeeRecipient,
   Base64,
   Burn,
   ChangeMakeDonation,

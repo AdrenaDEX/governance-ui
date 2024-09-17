@@ -272,6 +272,10 @@ export default function useGovernanceAssets() {
       name: 'Genesis OTC OUT',
       packageId: PackageEnum.Adrena,
     },
+    [Instructions.AdrenaSetProtocolFeeRecipient]: {
+      name: 'Set Protocol Fee Recipient',
+      packageId: PackageEnum.Adrena,
+    },
 
     /*
         ██████  ██████  ███    ███ ███    ███  ██████  ███    ██

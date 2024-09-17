@@ -64,6 +64,7 @@ import AdrenaSetCustodyAllowSwap from './components/instructions/Adrena/SetCusto
 import AdrenaSetCustodyAllowTrade from './components/instructions/Adrena/SetCustodyAllowTrade'
 import AdrenaSetCustodyMaxCumulativeShortSizeUsd from './components/instructions/Adrena/SetCustodyMaxCumulativeShortSizeUsd'
 import AdrenaSetPoolAllowSwap from './components/instructions/Adrena/SetPoolAllowSwap'
+import AdrenaSetProtocolFeeRecipient from './components/instructions/Adrena/SetProtocolFeeRecipient'
 import AdrenaSetPoolAllowTrade from './components/instructions/Adrena/SetPoolAllowTrade'
 import AdrenaSetPoolAumSoftCapUsd from './components/instructions/Adrena/SetPoolAumSoftCapUsd'
 import AdrenaSetPoolLiquidityState from './components/instructions/Adrena/SetPoolLiquidityState'
@@ -491,6 +492,7 @@ const New = () => {
       [Instructions.AdrenaSetStakingLmEmissionPotentiometers]: AdrenaSetStakingLmEmissionPotentiometers,
       [Instructions.AdrenaGenesisOtcIn]: AdrenaGenesisOtcIn,
       [Instructions.AdrenaGenesisOtcOut]: AdrenaGenesisOtcOut,
+      [Instructions.AdrenaSetProtocolFeeRecipient]: AdrenaSetProtocolFeeRecipient,
       [Instructions.Burn]: BurnTokens,
       [Instructions.Transfer]: SplTokenTransfer,
       [Instructions.ProgramUpgrade]: ProgramUpgrade,
