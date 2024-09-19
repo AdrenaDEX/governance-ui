@@ -276,6 +276,14 @@ export default function useGovernanceAssets() {
       name: 'Set Protocol Fee Recipient',
       packageId: PackageEnum.Adrena,
     },
+    [Instructions.AdrenaAddCustody]: {
+      name: 'Add Custody',
+      packageId: PackageEnum.Adrena,
+    },
+    [Instructions.AdrenaSetCustodyConfig]: {
+      name: 'Set Custody Config',
+      packageId: PackageEnum.Adrena,
+    },
 
     /*
         ██████  ██████  ███    ███ ███    ███  ██████  ███    ██

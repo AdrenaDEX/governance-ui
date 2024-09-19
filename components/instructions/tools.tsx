@@ -572,7 +572,7 @@ function generateInstructionDescriptorFromIDL(idl: Idl) {
                 ).map(([key, value]) => (
                   <div key={key} className="flex">
                     <div className="w-60">{key}</div>
-                    <div>{String(value)}</div>
+                    <div>{JSON.stringify(value, null, 6)}</div>
                   </div>
                 ))}
               </div>

@@ -94,6 +94,23 @@ export default class AdrenaClient {
     )[0]
   }
 
+  public getCustodyPda(pool: PublicKey, mint: PublicKey): PublicKey {
+    return PublicKey.findProgramAddressSync(
+      [Buffer.from('custody_token_account'), pool.toBuffer(), mint.toBuffer()],
+      this.programId
+    )[0]
+  }
+
+  public getCustodyTokenAccountPda(
+    pool: PublicKey,
+    mint: PublicKey
+  ): PublicKey {
+    return PublicKey.findProgramAddressSync(
+      [Buffer.from('custody'), pool.toBuffer(), mint.toBuffer()],
+      this.programId
+    )[0]
+  }
+
   public findCustodyTokenAccountAddress(pool: PublicKey, mint: PublicKey) {
     return PublicKey.findProgramAddressSync(
       [Buffer.from('custody_token_account'), pool.toBuffer(), mint.toBuffer()],

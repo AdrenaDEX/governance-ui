@@ -309,6 +309,8 @@ export enum Instructions {
   AdrenaGenesisOtcIn,
   AdrenaGenesisOtcOut,
   AdrenaSetProtocolFeeRecipient,
+  AdrenaAddCustody,
+  AdrenaSetCustodyConfig,
   Base64,
   Burn,
   ChangeMakeDonation,
