@@ -160,7 +160,7 @@ export default function AddCustody({
         borrowRate: {
           maxHourlyBorrowInterestRate: new BN(form.maxHourlyBorrowInterestRate),
         },
-        ratios: Array(10).map((_, i) => ({
+        ratios: Array.from(Array(10)).map((_, i) => ({
           min: form[`ratio${i + 1}Min`] as number,
           target: form[`ratio${i + 1}Target`] as number,
           max: form[`ratio${i + 1}Max`] as number,
@@ -230,7 +230,7 @@ export default function AddCustody({
           value: c,
         })) ?? [],
     },
-    ...(Array(10)
+    ...(Array.from(Array(10))
       .map((_, i) => [
         {
           label: `Custody ${i + 1} Min Ratio`,

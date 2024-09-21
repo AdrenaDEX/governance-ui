@@ -69,28 +69,20 @@ export default function AddCustody({
     custodyOracle: null,
     custodyTradeOracle: null,
     isStable: false,
-    maxInitialLeverage: 1_050_000, // x105
-    maxLeverage: 1_100_000, // x110
-    maxPositionLockedUsd: 250_000,
-    maxCumulativeShortPositionSizeUsd: 1_000_000,
-    feeSwapIn: 10,
-    feeSwapOut: 10,
-    feeStableSwapIn: 10,
-    feeStableSwapOut: 10,
-    feeAddLiquidity: 10,
-    feeRemoveLiquidity: 10,
-    feeClosePosition: 16,
-    feeLiquidation: 16,
-    feeMax: 200,
-    maxHourlyBorrowInterestRate: 80000, // 0.008%
-    ...Array(10).reduce((acc, _, i) => {
-      return {
-        ...acc,
-        [`ratio${i + 1}Min`]: 0,
-        [`ratio${i + 1}Target`]: 0,
-        [`ratio${i + 1}Max`]: 0,
-      }
-    }, {}),
+    maxInitialLeverage: 0,
+    maxLeverage: 0,
+    maxPositionLockedUsd: 0,
+    maxCumulativeShortPositionSizeUsd: 0,
+    feeSwapIn: 0,
+    feeSwapOut: 0,
+    feeStableSwapIn: 0,
+    feeStableSwapOut: 0,
+    feeAddLiquidity: 0,
+    feeRemoveLiquidity: 0,
+    feeClosePosition: 0,
+    feeLiquidation: 0,
+    feeMax: 0,
+    maxHourlyBorrowInterestRate: 0,
   })
   const [formErrors, setFormErrors] = useState({})
 
@@ -133,7 +125,7 @@ export default function AddCustody({
     const mint = new PublicKey(form.mint)
 
     const custodyPda = adrenaClient.getCustodyPda(form.pool.value.pubkey, mint)
-    const custodyTokenAccountPda = adrenaClient.getCustodyPda(
+    const custodyTokenAccountPda = adrenaClient.findCustodyTokenAccountAddress(
       form.pool.value.pubkey,
       mint
     )
@@ -167,7 +159,7 @@ export default function AddCustody({
         borrowRate: {
           maxHourlyBorrowInterestRate: new BN(form.maxHourlyBorrowInterestRate),
         },
-        ratios: Array(10).map((_, i) => ({
+        ratios: Array.from(Array(10)).map((_, i) => ({
           min: form[`ratio${i + 1}Min`] as number,
           target: form[`ratio${i + 1}Target`] as number,
           max: form[`ratio${i + 1}Max`] as number,
@@ -214,53 +206,227 @@ export default function AddCustody({
       .required('Program governed account is required'),
   })
 
-  const inputs: InstructionInput[] = [
-    {
-      label: 'Governance',
-      initialValue: form.governedAccount,
-      name: 'governedAccount',
-      type: InstructionInputType.GOVERNED_ACCOUNT,
-      shouldBeGoverned: shouldBeGoverned as any,
-      governance,
-      options: programGovernances,
-    },
-    {
-      label: 'Pool',
-      initialValue: form.pool,
-      type: InstructionInputType.SELECT,
-      name: 'pool',
-      options:
-        pools?.map((p) => ({
-          name: String.fromCharCode(...p.name.value),
-          value: p,
-        })) ?? [],
-    },
-    ...(Array(10)
-      .map((_, i) => [
-        {
-          label: `Custody ${i + 1} Min Ratio`,
-          initialValue: form[`ratio${i + 1}Min`],
-          type: InstructionInputType.INPUT,
-          name: `ratio${i + 1}Min`,
-          inputType: 'number',
-        },
-        {
-          label: `Custody ${i + 1} Target Ratio`,
-          initialValue: form[`ratio${i + 1}Target`],
-          type: InstructionInputType.INPUT,
-          name: `ratio${i + 1}Target`,
-          inputType: 'number',
-        },
-        {
-          label: `Custody ${i + 1} Max Ratios`,
-          initialValue: form[`ratio${i + 1}Max`],
-          type: InstructionInputType.INPUT,
-          name: `ratio${i + 1}Max`,
-          inputType: 'number',
-        },
-      ])
-      .flat() as InstructionInput[]),
-  ]
+  const [inputs, setInputs] = useState<InstructionInput[]>([])
+
+  useEffect(() => {
+    const base = [
+      {
+        label: 'Governance',
+        initialValue: form.governedAccount,
+        name: 'governedAccount',
+        type: InstructionInputType.GOVERNED_ACCOUNT,
+        shouldBeGoverned: shouldBeGoverned as any,
+        governance,
+        options: programGovernances,
+      },
+      {
+        label: 'Pool',
+        initialValue: form.pool,
+        type: InstructionInputType.SELECT,
+        name: 'pool',
+        options:
+          pools?.map((p) => ({
+            name: String.fromCharCode(...p.name.value),
+            value: p,
+          })) ?? [],
+      },
+    ]
+
+    const pool = form.pool?.value
+
+    if (!pool) {
+      return setInputs(base)
+    }
+
+    const newCustodyPosition = pool.custodies.findIndex(
+      (x) => x.toBase58() === PublicKey.default.toBase58()
+    )
+
+    setInputs([
+      ...base,
+      {
+        label: 'Mint',
+        initialValue: form.mint,
+        type: InstructionInputType.INPUT,
+        name: 'mint',
+        inputType: 'string',
+      },
+      {
+        label: 'Custody Oracle',
+        initialValue: form.custodyOracle,
+        type: InstructionInputType.INPUT,
+        name: 'custodyOracle',
+        inputType: 'string',
+      },
+      {
+        label: 'Custody Trade Oracle',
+        initialValue: form.custodyTradeOracle,
+        type: InstructionInputType.INPUT,
+        name: 'custodyTradeOracle',
+        inputType: 'string',
+      },
+      {
+        label: 'Is Stable',
+        initialValue: form.isStable,
+        type: InstructionInputType.SWITCH,
+        name: 'isStable',
+      },
+      {
+        label: 'Max Initial Leverage (10000 = x1)',
+        initialValue: 1_050_000, // x105
+        type: InstructionInputType.INPUT,
+        name: 'maxInitialLeverage',
+        inputType: 'number',
+      },
+      {
+        label: 'Max Leverage (10000 = x1)',
+        initialValue: 1_100_000, // x110
+        type: InstructionInputType.INPUT,
+        name: 'maxLeverage',
+        inputType: 'number',
+      },
+      {
+        label: 'Max Position Locked Usd',
+        initialValue: 250_000,
+        type: InstructionInputType.INPUT,
+        name: 'maxPositionLockedUsd',
+        inputType: 'number',
+      },
+      {
+        label: 'Max Cumulative Short Position Size Usd',
+        initialValue: 1_000_000,
+        type: InstructionInputType.INPUT,
+        name: 'maxCumulativeShortPositionSizeUsd',
+        inputType: 'number',
+      },
+      {
+        label: 'Fee Swap IN (in BPS)',
+        initialValue: 10,
+        type: InstructionInputType.INPUT,
+        name: 'feeSwapIn',
+        inputType: 'number',
+      },
+      {
+        label: 'Fee Swap OUT (in BPS)',
+        initialValue: 10,
+        type: InstructionInputType.INPUT,
+        name: 'feeSwapOut',
+        inputType: 'number',
+      },
+      {
+        label: 'Fee Stable Swap IN (in BPS)',
+        initialValue: 10,
+        type: InstructionInputType.INPUT,
+        name: 'feeStableSwapIn',
+        inputType: 'number',
+      },
+      {
+        label: 'Fee Stable Swap OUT (in BPS)',
+        initialValue: 10,
+        type: InstructionInputType.INPUT,
+        name: 'feeStableSwapOut',
+        inputType: 'number',
+      },
+      {
+        label: 'Fee Add Liquidity (in BPS)',
+        initialValue: 10,
+        type: InstructionInputType.INPUT,
+        name: 'feeAddLiquidity',
+        inputType: 'number',
+      },
+      {
+        label: 'Fee Remove Liquidity (in BPS)',
+        initialValue: 10,
+        type: InstructionInputType.INPUT,
+        name: 'feeRemoveLiquidity',
+        inputType: 'number',
+      },
+      {
+        label: 'Fee Close Position (in BPS)',
+        initialValue: 16,
+        type: InstructionInputType.INPUT,
+        name: 'feeClosePosition',
+        inputType: 'number',
+      },
+      {
+        label: 'Fee Liquidation (in BPS)',
+        initialValue: 16,
+        type: InstructionInputType.INPUT,
+        name: 'feeLiquidation',
+        inputType: 'number',
+      },
+      {
+        label: 'Fee Max (in BPS)',
+        initialValue: 200,
+        type: InstructionInputType.INPUT,
+        name: 'feeMax',
+        inputType: 'number',
+      },
+      {
+        label: 'Max Hourly Borrow Interest Rate (0.008% = 80000)',
+        initialValue: 80000, // 0.008%
+        type: InstructionInputType.INPUT,
+        name: 'maxHourlyBorrowInterestRate',
+        inputType: 'number',
+      },
+      ...(Array.from(Array(newCustodyPosition + 1))
+        .map((_, i) => [
+          {
+            label: `Custody ${i + 1} Min Ratio (${
+              i === newCustodyPosition
+                ? '*NEW CUSTODY'
+                : form.pool!.value.custodies[i].toBase58() !=
+                  PublicKey.default.toBase58()
+                ? form.pool!.value.custodies[i].toBase58().slice(0, 4)
+                : '-'
+            })`,
+            initialValue: form[`ratio${i + 1}Min`],
+            type: InstructionInputType.INPUT,
+            name: `ratio${i + 1}Min`,
+            inputType: 'number',
+          },
+          {
+            label: `Custody ${i + 1} Target Ratio (${
+              i === newCustodyPosition
+                ? '*NEW CUSTODY'
+                : form.pool!.value.custodies[i].toBase58() !=
+                  PublicKey.default.toBase58()
+                ? form.pool!.value.custodies[i].toBase58().slice(0, 4)
+                : '-'
+            })`,
+            initialValue: form[`ratio${i + 1}Target`],
+            type: InstructionInputType.INPUT,
+            name: `ratio${i + 1}Target`,
+            inputType: 'number',
+          },
+          {
+            label: `Custody ${i + 1} Max Ratios (${
+              i === newCustodyPosition
+                ? '*NEW CUSTODY'
+                : form.pool!.value.custodies[i].toBase58() !=
+                  PublicKey.default.toBase58()
+                ? form.pool!.value.custodies[i].toBase58().slice(0, 4)
+                : '-'
+            })`,
+            initialValue: form[`ratio${i + 1}Max`],
+            type: InstructionInputType.INPUT,
+            name: `ratio${i + 1}Max`,
+            inputType: 'number',
+          },
+        ])
+        .flat() as InstructionInput[]),
+    ])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    form.pool?.name ?? 'none',
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    !!governance,
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    !!pools,
+    programGovernances,
+    shouldBeGoverned,
+  ])
 
   if (!form) return <></>
 
