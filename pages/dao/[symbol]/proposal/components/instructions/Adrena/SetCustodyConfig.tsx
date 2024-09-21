@@ -63,7 +63,6 @@ export default function AddCustody({
     governedAccount: null,
     pool: null,
     custody: null,
-    mint: null,
     custodyOracle: null,
     custodyTradeOracle: null,
     isStable: false,
@@ -81,14 +80,6 @@ export default function AddCustody({
     feeLiquidation: 16,
     feeMax: 200,
     maxHourlyBorrowInterestRate: 80000, // 0.008%
-    ...Array(10).reduce((acc, _, i) => {
-      return {
-        ...acc,
-        [`ratio${i + 1}Min`]: 0,
-        [`ratio${i + 1}Target`]: 0,
-        [`ratio${i + 1}Max`]: 0,
-      }
-    }, {}),
   })
   const [formErrors, setFormErrors] = useState({})
 
@@ -198,64 +189,224 @@ export default function AddCustody({
       .required('Program governed account is required'),
   })
 
-  const inputs: InstructionInput[] = [
-    {
-      label: 'Governance',
-      initialValue: form.governedAccount,
-      name: 'governedAccount',
-      type: InstructionInputType.GOVERNED_ACCOUNT,
-      shouldBeGoverned: shouldBeGoverned as any,
-      governance,
-      options: programGovernances,
-    },
-    {
-      label: 'Pool',
-      initialValue: form.pool,
-      type: InstructionInputType.SELECT,
-      name: 'pool',
-      options:
-        pools?.map((p) => ({
-          name: String.fromCharCode(...p.name.value),
-          value: p,
-        })) ?? [],
-    },
-    {
-      label: 'Custody',
-      initialValue: form.custody,
-      type: InstructionInputType.SELECT,
-      name: 'custody',
-      options:
-        custodies?.map((c) => ({
-          name: c.pubkey.toBase58(),
-          value: c,
-        })) ?? [],
-    },
-    ...(Array.from(Array(10))
-      .map((_, i) => [
-        {
-          label: `Custody ${i + 1} Min Ratio`,
-          initialValue: form[`ratio${i + 1}Min`],
-          type: InstructionInputType.INPUT,
-          name: `ratio${i + 1}Min`,
-          inputType: 'number',
-        },
-        {
-          label: `Custody ${i + 1} Target Ratio`,
-          initialValue: form[`ratio${i + 1}Target`],
-          type: InstructionInputType.INPUT,
-          name: `ratio${i + 1}Target`,
-          inputType: 'number',
-        },
-        {
-          label: `Custody ${i + 1} Max Ratios`,
-          initialValue: form[`ratio${i + 1}Max`],
-          type: InstructionInputType.INPUT,
-          name: `ratio${i + 1}Max`,
-          inputType: 'number',
-        },
-      ])
-      .flat() as InstructionInput[]),
-  ]
+  const [inputs, setInputs] = useState<InstructionInput[]>([])
+
+  useEffect(() => {
+    const base = [
+      {
+        label: 'Governance',
+        initialValue: form.governedAccount,
+        name: 'governedAccount',
+        type: InstructionInputType.GOVERNED_ACCOUNT,
+        shouldBeGoverned: shouldBeGoverned as any,
+        governance,
+        options: programGovernances,
+      },
+      {
+        label: 'Pool',
+        initialValue: form.pool,
+        type: InstructionInputType.SELECT,
+        name: 'pool',
+        options:
+          pools?.map((p) => ({
+            name: String.fromCharCode(...p.name.value),
+            value: p,
+          })) ?? [],
+      },
+      {
+        label: 'Custody',
+        initialValue: form.custody,
+        type: InstructionInputType.SELECT,
+        name: 'custody',
+        options:
+          custodies?.map((c) => ({
+            name: c.pubkey.toBase58(),
+            value: c,
+          })) ?? [],
+      },
+    ]
+
+    const pool = form.pool?.value
+    const custody = form.custody?.value
+
+    if (!pool || !custody || !custodies) {
+      return setInputs(base)
+    }
+
+    setInputs([
+      ...base,
+      {
+        label: 'Custody Oracle',
+        initialValue: custody.oracle.toBase58(),
+        type: InstructionInputType.INPUT,
+        name: 'custodyOracle',
+        inputType: 'string',
+      },
+      {
+        label: 'Custody Trade Oracle',
+        initialValue: custody.tradeOracle.toBase58(),
+        type: InstructionInputType.INPUT,
+        name: 'custodyTradeOracle',
+        inputType: 'string',
+      },
+      {
+        label: 'Is Stable',
+        initialValue: custody.isStable,
+        type: InstructionInputType.SWITCH,
+        name: 'isStable',
+      },
+      {
+        label: 'Max Initial Leverage (10000 = x1)',
+        initialValue: custody.pricing.maxInitialLeverage,
+        type: InstructionInputType.INPUT,
+        name: 'maxInitialLeverage',
+        inputType: 'number',
+      },
+      {
+        label: 'Max Leverage (10000 = x1)',
+        initialValue: custody.pricing.maxLeverage,
+        type: InstructionInputType.INPUT,
+        name: 'maxLeverage',
+        inputType: 'number',
+      },
+      {
+        label: 'Max Position Locked Usd',
+        initialValue: custody.pricing.maxPositionLockedUsd.toNumber() / 10 ** 6,
+        type: InstructionInputType.INPUT,
+        name: 'maxPositionLockedUsd',
+        inputType: 'number',
+      },
+      {
+        label: 'Max Cumulative Short Position Size Usd',
+        initialValue:
+          custody.pricing.maxCumulativeShortPositionSizeUsd.toNumber() /
+          10 ** 6,
+        type: InstructionInputType.INPUT,
+        name: 'maxCumulativeShortPositionSizeUsd',
+        inputType: 'number',
+      },
+      {
+        label: 'Fee Swap IN (in BPS)',
+        initialValue: custody.fees.swapIn,
+        type: InstructionInputType.INPUT,
+        name: 'feeSwapIn',
+        inputType: 'number',
+      },
+      {
+        label: 'Fee Swap OUT (in BPS)',
+        initialValue: custody.fees.swapOut,
+        type: InstructionInputType.INPUT,
+        name: 'feeSwapOut',
+        inputType: 'number',
+      },
+      {
+        label: 'Fee Stable Swap IN (in BPS)',
+        initialValue: custody.fees.stableSwapIn,
+        type: InstructionInputType.INPUT,
+        name: 'feeStableSwapIn',
+        inputType: 'number',
+      },
+      {
+        label: 'Fee Stable Swap OUT (in BPS)',
+        initialValue: custody.fees.stableSwapOut,
+        type: InstructionInputType.INPUT,
+        name: 'feeStableSwapOut',
+        inputType: 'number',
+      },
+      {
+        label: 'Fee Add Liquidity (in BPS)',
+        initialValue: custody.fees.addLiquidity,
+        type: InstructionInputType.INPUT,
+        name: 'feeAddLiquidity',
+        inputType: 'number',
+      },
+      {
+        label: 'Fee Remove Liquidity (in BPS)',
+        initialValue: custody.fees.removeLiquidity,
+        type: InstructionInputType.INPUT,
+        name: 'feeRemoveLiquidity',
+        inputType: 'number',
+      },
+      {
+        label: 'Fee Close Position (in BPS)',
+        initialValue: custody.fees.closePosition,
+        type: InstructionInputType.INPUT,
+        name: 'feeClosePosition',
+        inputType: 'number',
+      },
+      {
+        label: 'Fee Liquidation (in BPS)',
+        initialValue: custody.fees.liquidation,
+        type: InstructionInputType.INPUT,
+        name: 'feeLiquidation',
+        inputType: 'number',
+      },
+      {
+        label: 'Fee Max (in BPS)',
+        initialValue: custody.fees.feeMax,
+        type: InstructionInputType.INPUT,
+        name: 'feeMax',
+        inputType: 'number',
+      },
+      {
+        label: 'Max Hourly Borrow Interest Rate (0.008% = 80000)',
+        initialValue: custody.borrowRate.maxHourlyBorrowInterestRate,
+        type: InstructionInputType.INPUT,
+        name: 'maxHourlyBorrowInterestRate',
+        inputType: 'number',
+      },
+      ...(Array.from(Array(custodies?.length))
+        .map((_, i) => [
+          {
+            label: `Custody ${i + 1} Min Ratio (${
+              pool.custodies[i].toBase58() == custody.pubkey.toBase58()
+                ? '*UPDATE'
+                : form.pool!.value.custodies[i].toBase58().slice(0, 4)
+            })`,
+            initialValue: pool.ratios[i].min,
+            type: InstructionInputType.INPUT,
+            name: `ratio${i + 1}Min`,
+            inputType: 'number',
+          },
+          {
+            label: `Custody ${i + 1} Target Ratio (${
+              pool.custodies[i].toBase58() == custody.pubkey.toBase58()
+                ? '*UPDATE'
+                : form.pool!.value.custodies[i].toBase58().slice(0, 4)
+            })`,
+            initialValue: pool.ratios[i].target,
+            type: InstructionInputType.INPUT,
+            name: `ratio${i + 1}Target`,
+            inputType: 'number',
+          },
+          {
+            label: `Custody ${i + 1} Max Ratios (${
+              pool.custodies[i].toBase58() == custody.pubkey.toBase58()
+                ? '*UPDATE'
+                : form.pool!.value.custodies[i].toBase58().slice(0, 4)
+            })`,
+            initialValue: pool.ratios[i].max,
+            type: InstructionInputType.INPUT,
+            name: `ratio${i + 1}Max`,
+            inputType: 'number',
+          },
+        ])
+        .flat() as InstructionInput[]),
+    ])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    form.pool?.name ?? 'none',
+    custodies?.length,
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    form.custody?.name ?? 'none',
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    !!governance,
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    !!pools,
+    programGovernances,
+    shouldBeGoverned,
+  ])
 
   if (!form) return <></>
 
