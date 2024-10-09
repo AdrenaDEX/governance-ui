@@ -39,6 +39,7 @@ import { STAKE_SANCTUM_INSTRUCTIONS } from './programs/stakeSanctum'
 import { SYMMETRY_V2_INSTRUCTIONS } from './programs/symmetryV2'
 import {
   AnchorProvider,
+  BN,
   BorshInstructionCoder,
   Idl,
   Program,
@@ -536,6 +537,66 @@ function camelToSnakeCase(str: string): string {
   return str.replace(/[A-Z]/g, (letter) => `_${letter.toLowerCase()}`)
 }
 
+function displayValue(value: unknown) {
+  if (value instanceof BN) {
+    const formattedNumber = value
+      .toString()
+      .replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+
+    return formattedNumber
+  }
+
+  if (typeof value === 'number') {
+    return value.toLocaleString()
+  }
+
+  if (Array.isArray(value)) {
+    // Display simple arrays as JSON in one line
+    if (value.length === 0 || value.every((v) => typeof v === 'number')) {
+      return <div>{JSON.stringify(value)}</div>
+    }
+
+    return (
+      <div className="flex flex-col">
+        <div>[</div>
+
+        <div className="flex flex-col ml-4">
+          {value.map((v, i) => (
+            <div key={i}>{displayValue(v)}</div>
+          ))}
+        </div>
+
+        <div>]</div>
+      </div>
+    )
+  }
+
+  if (value === null) return 'null'
+
+  if (value instanceof PublicKey) {
+    return new PublicKey(value.toString()).toBase58()
+  }
+
+  if (typeof value === 'object') {
+    const v = Object.entries(value).map(([key, value], i) => (
+      <div className="flex gap-2" key={i}>
+        <div className="w-[10em]">{key}:</div>
+        <div>{displayValue(value)}</div>
+      </div>
+    ))
+
+    return (
+      <div className="flex flex-col">
+        <div>{'{'}</div>
+        <div className="flex flex-col ml-4">{v}</div>
+        <div>{'}'}</div>
+      </div>
+    )
+  }
+
+  return String(value)
+}
+
 function generateInstructionDescriptorFromIDL(idl: Idl) {
   return idl.instructions.reduce((acc, instruction) => {
     let name = instruction.name
@@ -560,8 +621,8 @@ function generateInstructionDescriptorFromIDL(idl: Idl) {
             const ix = instructionCoder.decode(Buffer.from(data))
 
             return (
-              <div className="flex flex-col w-full">
-                {Object.entries(
+              <div className="flex flex-col w-full gap-2">
+                {displayValue(
                   // Cast as the type is incorrect
                   // If anything fails - display the data as usual
                   ((ix as unknown) as {
@@ -569,12 +630,7 @@ function generateInstructionDescriptorFromIDL(idl: Idl) {
                       params: Record<string, any>
                     }
                   }).data.params
-                ).map(([key, value]) => (
-                  <div key={key} className="flex">
-                    <div className="w-60">{key}</div>
-                    <div>{JSON.stringify(value, null, 6)}</div>
-                  </div>
-                ))}
+                )}
               </div>
             )
           } catch (error) {
