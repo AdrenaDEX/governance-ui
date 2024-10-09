@@ -573,6 +573,10 @@ function displayValue(value: unknown) {
 
   if (value === null) return 'null'
 
+  if (typeof value === 'string') {
+    return `"${value}"`
+  }
+
   if (value instanceof PublicKey) {
     return new PublicKey(value.toString()).toBase58()
   }
