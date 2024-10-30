@@ -60,6 +60,7 @@ import StakeValidator from './components/instructions/Validators/StakeValidator'
 import SanctumDepositStake from './components/instructions/Validators/SanctumDepositStake'
 import SanctumWithdrawStake from './components/instructions/Validators/SanctumWithdrawStake'
 import AdrenaMintLmTokensFromBucket from './components/instructions/Adrena/MintLmTokensFromBucket'
+import AdrenaPatchStakingRound from './components/instructions/Adrena/PatchStakingRound'
 import AdrenaSetCustodyAllowSwap from './components/instructions/Adrena/SetCustodyAllowSwap'
 import AdrenaSetCustodyAllowTrade from './components/instructions/Adrena/SetCustodyAllowTrade'
 import AdrenaSetCustodyMaxCumulativeShortSizeUsd from './components/instructions/Adrena/SetCustodyMaxCumulativeShortSizeUsd'
@@ -492,6 +493,7 @@ const New = () => {
       [Instructions.AdrenaSetPoolAumSoftCapUsd]: AdrenaSetPoolAumSoftCapUsd,
       [Instructions.AdrenaSetPoolLiquidityState]: AdrenaSetPoolLiquidityState,
       [Instructions.AdrenaSetStakingLmEmissionPotentiometers]: AdrenaSetStakingLmEmissionPotentiometers,
+      [Instructions.AdrenaPatchStakingRound]: AdrenaPatchStakingRound,
       [Instructions.AdrenaGenesisOtcIn]: AdrenaGenesisOtcIn,
       [Instructions.AdrenaGenesisOtcOut]: AdrenaGenesisOtcOut,
       [Instructions.AdrenaSetProtocolFeeRecipient]: AdrenaSetProtocolFeeRecipient,

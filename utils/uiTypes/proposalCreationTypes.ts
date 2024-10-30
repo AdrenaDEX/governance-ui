@@ -298,6 +298,7 @@ export interface JoinDAOForm {
 
 export enum Instructions {
   AdrenaMintLmTokensFromBucket,
+  AdrenaPatchStakingRound,
   AdrenaSetCustodyAllowSwap,
   AdrenaSetCustodyAllowTrade,
   AdrenaSetCustodyMaxCumulativeShortSizeUsd,
